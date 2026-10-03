@@ -13,8 +13,8 @@ npm run build    # regenerate the PDFs, then build the static site in dist/
 
 ## Deploying
 
-The site is hosted on Cloudflare Pages, connected to this repository on GitHub. Every push to `main` builds and deploys to https://hourstotal.com; other branches get a preview address.
+The site runs on Cloudflare as the Worker `time-card`, connected to this repository on GitHub. Every push to `main` builds and deploys it; it serves only the static files in `dist/` (see `wrangler.jsonc`).
 
-Cloudflare build settings: framework preset Astro, build command `npm run build`, output directory `dist`, environment variable `NODE_VERSION=22`.
+Cloudflare build settings: build command `npm run build`, deploy command `npx wrangler deploy`. The Node version comes from `.node-version`.
 
 Pass `noindex` to `Base` on any page that should stay out of search results.
