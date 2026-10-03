@@ -1,0 +1,29 @@
+---
+import { format12, format24, formatMilitary } from '../engine/time';
+
+const hours = Array.from({ length: 24 }, (_, i) => i * 60);
+---
+
+<table class="chart" id="chart">
+  <caption>Standard time to military time, by hour</caption>
+  <thead>
+    <tr>
+      <th scope="col">Standard time</th>
+      <th scope="col">Military time</th>
+      <th scope="col">24-hour clock</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      hours.map((m) => (
+        <tr id={formatMilitary(m)}>
+          <th scope="row">
+            <a href={`#${formatMilitary(m)}`}>{format12(m)}</a>
+          </th>
+          <td>{format12(m)} = {formatMilitary(m)}</td>
+          <td>{format24(m)}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

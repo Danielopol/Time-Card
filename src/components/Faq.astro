@@ -1,0 +1,33 @@
+---
+interface Props {
+  /** Answers are plain text, because the same text goes into the FAQPage structured data. */
+  items: { q: string; a: string }[];
+}
+
+const { items } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+// A "<" inside JSON could close the script tag early.
+const json = JSON.stringify(schema).replace(/</g, '\\u003c');
+---
+
+<section class="faq prose no-print">
+  <h2>Frequently asked questions</h2>
+  {
+    items.map((item) => (
+      <>
+        <h3>{item.q}</h3>
+        <p>{item.a}</p>
+      </>
+    ))
+  }
+</section>
+<script type="application/ld+json" set:html={json} />

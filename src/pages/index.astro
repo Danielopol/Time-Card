@@ -1,0 +1,120 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import TimeCard from '../components/TimeCard.tsx';
+import ToolGrid from '../components/ToolGrid.astro';
+
+const faq = [
+  {
+    q: 'Is this time card calculator free?',
+    a: 'Yes. It is free with no sign-up, no email and no limit on how many time cards you make. Printing, saving as a PDF, CSV export and share links are free too.',
+  },
+  {
+    q: 'How do I calculate hours worked with a lunch break?',
+    a: 'Subtract the start time from the end time, then subtract the unpaid lunch. From 8:00 AM to 4:30 PM is 8 hours 30 minutes. Take off a 30-minute lunch and you worked 8 hours. Enter the lunch as Lunch out and Lunch in and the calculator does this for each day.',
+  },
+  {
+    q: 'Can I use it as a timesheet calculator for two weeks?',
+    a: 'Yes. Tick "Two weeks (biweekly)" to get 14 days on one card. Overtime is still worked out one week at a time, because overtime law counts each workweek separately and does not average the two weeks together.',
+  },
+  {
+    q: 'How does it handle a night shift that ends after midnight?',
+    a: 'If the Out time is earlier than the In time, the calculator counts it as the next day. In at 10:00 PM and Out at 6:00 AM is 8 hours. Lunch breaks after midnight work the same way.',
+  },
+  {
+    q: 'Can I enter military time?',
+    a: 'Yes. You can type 24-hour times such as 0730, 1615 or 17:30, or 12-hour times such as 7:30a and 4:15p. When you leave a box, the calculator shows the time it understood.',
+  },
+  {
+    q: 'What is the 7-minute rule?',
+    a: 'It is rounding each clock punch to the nearest quarter hour. Up to 7 minutes past rounds down and 8 minutes or more rounds up, so 8:07 becomes 8:00 and 8:08 becomes 8:15. Federal rules allow this kind of rounding as long as, over time, employees are still paid for all the time they work. Choose "Nearest 15 minutes" under Rounding to apply it.',
+  },
+  {
+    q: 'Does gross pay include taxes?',
+    a: 'No. Gross pay is hours multiplied by your hourly rate, with overtime at 1.5 times and double time at 2 times. It is the amount before taxes and other deductions, so your take-home pay will be lower.',
+  },
+  {
+    q: 'Where is my time card saved?',
+    a: 'In your browser, on your own device. Nothing you type is sent to a server. A share link contains the time card inside the link itself, so only people you give the link to can open it.',
+  },
+  {
+    q: 'Why are my hours shown as a decimal?',
+    a: 'Payroll multiplies hours by a pay rate, which needs decimal hours. 8 hours 30 minutes is 8.50 hours, not 8.30. Each day and the totals are shown both ways, as decimal hours and as hours and minutes.',
+  },
+];
+---
+
+<Base
+  title="Free Time Card Calculator with Lunch Breaks and Overtime"
+  description="Free weekly time card calculator. Add up hours worked with lunch breaks, overtime and gross pay. Print it, save it as a PDF or share it by link. No sign-up."
+  appName="Time Card Calculator"
+>
+  <h1 class="no-print">Free Time Card Calculator</h1>
+  <p class="lede">Add up a week of hours worked, with lunch breaks, overtime and gross pay.</p>
+  <TimeCard client:load />
+
+  <div class="prose no-print">
+    <section>
+      <h2>How to use the time card calculator</h2>
+      <ol>
+        <li>Type the time you clocked in and out for each day. Add Lunch out and Lunch in if you took an unpaid lunch, or leave them empty.</li>
+        <li>Enter your hourly rate if you want gross pay as well as hours.</li>
+        <li>Pick the overtime rules that apply to you. Federal rules fit most of the United States.</li>
+        <li>Read the totals under the card: regular hours, overtime hours, total hours and gross pay.</li>
+        <li>Print the card, save it as a PDF, download a CSV for a spreadsheet, or copy a link to send to your manager.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>How hours worked are calculated</h2>
+      <p>
+        For each day, the calculator takes the time from In to Out and subtracts the lunch break. An employee who clocks in at 8:00 AM, takes lunch from
+        12:00 PM to 12:30 PM and clocks out at 4:30 PM was at work for 8 hours 30 minutes and is paid for 8 hours.
+      </p>
+      <p>
+        Hours are shown as decimal hours and as hours and minutes. Payroll uses the decimal figure: 8 hours 45 minutes is 8.75 hours. To convert a
+        single time, use the <a href="/minutes-to-decimal/">minutes to decimal converter</a>. For one shift with no weekly total,
+        the <a href="/hours-calculator/">hours calculator</a> is quicker.
+      </p>
+    </section>
+
+    <section>
+      <h2>How overtime is calculated</h2>
+      <p>
+        Under federal law, hours over 40 in a workweek are paid at 1.5 times the regular rate. There is no federal overtime for a long day on its own. A
+        week of five 9-hour days is 45 hours: 40 regular and 5 overtime.
+      </p>
+      <p>
+        Some states also count long days. California pays 1.5 times after 8 hours in a day and double time after 12, with extra rules for a seventh day
+        of work in a row. Alaska has daily overtime after 8 hours, Nevada has it for lower-paid employees, and Colorado has it after 12 hours. Choose your state under Overtime rules and the card
+        splits each day into regular, overtime and double time. With California selected, the card also notes days where a meal break looks late, short
+        or missing.
+      </p>
+      <p>
+        If you already know your overtime hours, the <a href="/overtime-calculator/">overtime calculator</a> works out the pay and lists the sources for
+        each state's rules.
+      </p>
+    </section>
+
+    <section>
+      <h2>Rounding clock times</h2>
+      <p>
+        Many employers round punches before adding them up. The Rounding setting rounds each time to the nearest 5 minutes, 6 minutes (a tenth of an
+        hour) or 15 minutes. With 15-minute rounding, a punch at 7:53 AM counts as 8:00 AM and a punch at 5:08 PM counts as 5:15 PM. Leave it on "Exact
+        minutes" to use the times as typed.
+      </p>
+    </section>
+
+    <section>
+      <h2>Save, share and print</h2>
+      <p>
+        The card saves in your browser as you type, so it is still there when you come back. Give it a name and choose Save card to keep several, such
+        as one per employee or one per week. "Copy share link" makes a link that opens a read-only copy of the card. "Print blank time card" prints an
+        empty card with signature lines for filling in by hand.
+      </p>
+    </section>
+  </div>
+
+  <Faq items={faq} />
+  <ToolGrid />
+</Base>

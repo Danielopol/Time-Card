@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import HoursCalc from '../components/HoursCalc.tsx';
+import Faq from '../components/Faq.astro';
+import ToolGrid from '../components/ToolGrid.astro';
+
+const faq = [
+  {
+    q: 'How many hours is 9 to 5?',
+    a: '9:00 AM to 5:00 PM is 8 hours. With a 30-minute unpaid break it is 7 hours 30 minutes, or 7.50 hours.',
+  },
+  {
+    q: 'How many hours is 8 AM to 5 PM?',
+    a: '8:00 AM to 5:00 PM is 9 hours. With a one-hour lunch it is 8 hours.',
+  },
+  {
+    q: 'How do I calculate hours when a shift goes past midnight?',
+    a: 'Count the time up to midnight, then add the time after it. From 10:00 PM to 6:00 AM is 2 hours before midnight plus 6 hours after, which is 8 hours. In the calculator, enter the two times as they are. An end time earlier than the start is counted as the next day.',
+  },
+  {
+    q: 'How do I take a break out of the total?',
+    a: 'Enter the length of the break in the Break box, in minutes or as hours and minutes. 9:00 AM to 5:30 PM is 8 hours 30 minutes. With a 45-minute break the total is 7 hours 45 minutes.',
+  },
+  {
+    q: 'How do I write hours and minutes as a decimal?',
+    a: 'Divide the minutes by 60 and add the result to the hours. 7 hours 45 minutes is 7 + 45 ÷ 60 = 7.75 hours. The calculator shows the decimal figure next to the hours and minutes.',
+  },
+  {
+    q: 'Do I have to type AM and PM?',
+    a: 'No. A start time without AM or PM is read as a morning or 24-hour time, so 9 is 9:00 AM and 17 is 5:00 PM. An end time that would fall before the start is read as PM, so 9 to 5 means 9:00 AM to 5:00 PM. The line under the result shows the times the calculator used.',
+  },
+  {
+    q: 'Can I add up hours for several days?',
+    a: 'This calculator handles one start time and one end time. To total several days, with overtime and pay, use the weekly calculator on the home page.',
+  },
+];
+---
+
+<Base
+  title="Hours Calculator: Hours Between Two Times"
+  description="Work out the hours and minutes between a start time and an end time, with an optional break. Shows the answer in hours and minutes and in decimal hours."
+  appName="Hours Calculator"
+>
+  <h1>Hours Calculator</h1>
+  <p class="lede">Find the hours and minutes between a start time and an end time.</p>
+  <HoursCalc client:load />
+
+  <section class="prose">
+    <h2>How to calculate hours between two times</h2>
+    <ol>
+      <li>Write both times on a 24-hour clock. 9:00 AM is 9:00 and 5:30 PM is 17:30.</li>
+      <li>Subtract the start from the end. 17:30 − 9:00 = 8 hours 30 minutes.</li>
+      <li>Subtract any break. 8 hours 30 minutes − 30 minutes = 8 hours.</li>
+      <li>For decimal hours, divide the minutes by 60. 8 hours 30 minutes is 8 + 30 ÷ 60 = 8.50 hours.</li>
+    </ol>
+    <p>
+      If the end time is earlier than the start time, the calculator counts it as the next day. 10:00 PM to 6:00 AM is 8 hours.
+    </p>
+    <p>Adding up a whole week? Use the <a href="/">weekly calculator</a>, which also handles overtime and pay.</p>
+  </section>
+  <Faq items={faq} />
+  <ToolGrid />
+</Base>

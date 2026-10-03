@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import { SITE, TOOLS } from '../site';
+
+const host = new URL(SITE.url).host;
+
+interface Props {
+  title: string;
+  description: string;
+  /** Keep unfinished pages out of search results. */
+  noindex?: boolean;
+  /** Name of the tool on this page. Adds WebApplication structured data. */
+  appName?: string;
+}
+
+const { title, description, noindex = false, appName } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+const appSchema = appName && {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: appName,
+  url: canonical.href,
+  description,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Any',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {appSchema && <script type="application/ld+json" set:html={JSON.stringify(appSchema).replace(/</g, '\\u003c')} />}
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">{SITE.name}</a>
+      <nav aria-label="Tools">
+        <ul>
+          {
+            TOOLS.map((tool) => (
+              <li>
+                <a href={tool.href} aria-current={Astro.url.pathname === tool.href ? 'page' : undefined}>
+                  {tool.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <p class="print-only print-credit">Printed from {host}</p>
+    <footer class="site-footer">
+      <p>Your entries stay in your browser. Nothing you type is sent to a server.</p>
+      <p>Results are estimates and are not legal or payroll advice.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import OvertimeCalc from '../components/OvertimeCalc.tsx';
+import Faq from '../components/Faq.astro';
+import ToolGrid from '../components/ToolGrid.astro';
+
+const faq = [
+  {
+    q: 'How do I calculate overtime pay?',
+    a: 'Multiply your hourly rate by the overtime multiplier, then by your overtime hours. At $20 an hour and time and a half, the overtime rate is $30 an hour, so 6 overtime hours pay $180.',
+  },
+  {
+    q: 'What is time and a half for $20 an hour?',
+    a: 'Time and a half is 1.5 times the regular rate. For $20 an hour that is $30 an hour. For $15 an hour it is $22.50, and for $25 an hour it is $37.50.',
+  },
+  {
+    q: 'How much is double time?',
+    a: 'Double time is 2 times the regular rate, so $20 an hour becomes $40 an hour. Federal law does not require double time. California requires it after 12 hours in a day and after 8 hours on a seventh day of work in a row in a workweek.',
+  },
+  {
+    q: 'When does overtime start?',
+    a: 'Under federal law, overtime starts after 40 hours in a workweek. Some states also pay overtime for long days: California and Alaska after 8 hours in a day, Nevada after 8 hours for lower-paid employees, and Colorado after 12 hours. Choose a state under "Which hours count as overtime?" to see its rules and sources.',
+  },
+  {
+    q: 'Is overtime worked out by the week or by the pay period?',
+    a: 'By the week. Each workweek is counted on its own, even if you are paid every two weeks. Working 50 hours one week and 30 the next is 10 hours of overtime, not zero.',
+  },
+  {
+    q: 'What if my employer pays more than time and a half?',
+    a: 'Change the Overtime multiplier box. Enter 2 for double time on all overtime hours, or any other figure your employer or union contract uses.',
+  },
+  {
+    q: 'Does the result include taxes?',
+    a: 'No. The calculator shows gross pay, which is the amount before taxes and other deductions.',
+  },
+  {
+    q: 'Do salaried employees get overtime?',
+    a: 'Some do and some do not. It depends on the job duties and how much the salary is, not on the job title. This calculator is for hourly pay. If you are on a salary and unsure, ask your employer or your state labor office.',
+  },
+];
+---
+
+<Base
+  title="Overtime Calculator: Time and a Half and Double Time Pay"
+  description="Calculate overtime pay from your hourly rate and hours. Shows regular pay, time-and-a-half pay, double-time pay and the total."
+  appName="Overtime Calculator"
+>
+  <h1>Overtime Calculator</h1>
+  <p class="lede">Work out overtime pay and total pay from your hourly rate and hours.</p>
+  <OvertimeCalc client:load />
+
+  <section class="prose">
+    <h2>How to calculate overtime pay</h2>
+    <ol>
+      <li>Multiply your hourly rate by the overtime multiplier. At time and a half, $18.50 × 1.5 = $27.75 an hour.</li>
+      <li>Multiply that overtime rate by your overtime hours. $27.75 × 5 hours = $138.75.</li>
+      <li>Work out regular pay. $18.50 × 40 hours = $740.00.</li>
+      <li>Add the two. $740.00 + $138.75 = $878.75.</li>
+    </ol>
+    <p>
+      Under federal law, overtime is 1.5 times the regular rate for hours over 40 in a workweek. Some states also count long days as overtime, and some
+      employers pay a higher multiplier. This calculator estimates gross pay before taxes and deductions and is not legal or payroll advice.
+    </p>
+    <p>
+      Don't know your overtime hours yet? Enter your start and end times in the <a href="/">time card calculator</a> and it splits the week into regular,
+      overtime and double time for you.
+    </p>
+  </section>
+  <Faq items={faq} />
+  <ToolGrid />
+</Base>

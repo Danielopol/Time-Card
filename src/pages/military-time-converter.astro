@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import MilitaryChart from '../components/MilitaryChart.astro';
+import MilitaryTime from '../components/MilitaryTime.tsx';
+import Faq from '../components/Faq.astro';
+import ToolGrid from '../components/ToolGrid.astro';
+
+const faq = [
+  {
+    q: 'What time is 1700 in military time?',
+    a: '1700 is 5:00 PM. Subtract 12 from the hour: 17 − 12 = 5.',
+  },
+  {
+    q: 'What time is 1300?',
+    a: '1300 is 1:00 PM. It is the first hour after noon, and 13 − 12 = 1.',
+  },
+  {
+    q: 'What is 5:30 PM in military time?',
+    a: '5:30 PM is 1730. Add 12 to the hour, keep the minutes and write it as four digits.',
+  },
+  {
+    q: 'What is midnight in military time?',
+    a: 'Midnight is 0000. The same moment is sometimes written 2400 when it marks the end of a day. This converter accepts both.',
+  },
+  {
+    q: 'What is 12 PM in military time?',
+    a: '12:00 PM, or noon, is 1200. 12:00 AM, or midnight, is 0000.',
+  },
+  {
+    q: 'Is military time the same as the 24-hour clock?',
+    a: 'The hours and minutes are the same. Military time is written as four digits with no colon, such as 1730, and the 24-hour clock is usually written with a colon, such as 17:30.',
+  },
+  {
+    q: 'Do the minutes change when converting?',
+    a: 'No. Only the hour changes. 2:45 PM is 1445 and 9:05 AM is 0905.',
+  },
+];
+---
+
+<Base
+  title="Military Time Converter and 24-Hour Chart"
+  description="Convert between standard 12-hour time and 24-hour military time in either direction. Includes a printable military time chart."
+  appName="Military Time Converter"
+>
+  <h1>Military Time Converter</h1>
+  <p class="lede">Convert between standard 12-hour time and 24-hour military time. 5:30 PM is 1730.</p>
+  <MilitaryTime client:load />
+
+  <section>
+    <h2>Military time chart</h2>
+    <p class="chart-actions no-print">
+      <button type="button" onclick="window.print()">Print chart</button>
+      <a class="button secondary" href="/military-time-chart.pdf" download>Download PDF</a>
+    </p>
+    <MilitaryChart />
+  </section>
+
+  <section class="prose no-print">
+    <h2>How to convert standard time to military time</h2>
+    <ul>
+      <li>From 1:00 AM to 12:59 PM, keep the hour and write four digits. 9:05 AM is 0905 and 12:30 PM is 1230.</li>
+      <li>From 1:00 PM to 11:59 PM, add 12 to the hour. 5:30 PM is 5 + 12 = 17, so 1730.</li>
+      <li>From 12:00 AM to 12:59 AM, the hour is 00. 12:15 AM is 0015.</li>
+    </ul>
+    <h2 class="spaced">How to convert military time to standard time</h2>
+    <ul>
+      <li>From 0100 to 1159, the hour stays the same and the time is AM. 0905 is 9:05 AM.</li>
+      <li>From 1200 to 1259, the time is PM. 1230 is 12:30 PM.</li>
+      <li>From 1300 to 2359, subtract 12 from the hour and the time is PM. 1730 is 17 − 12 = 5, so 5:30 PM.</li>
+      <li>From 0000 to 0059, the hour is 12 and the time is AM. 0015 is 12:15 AM.</li>
+    </ul>
+    <p>The <a href="/">time card calculator</a> accepts 24-hour times, so you can enter punches such as 0730 and 1615 directly.</p>
+  </section>
+  <Faq items={faq} />
+  <ToolGrid />
+</Base>

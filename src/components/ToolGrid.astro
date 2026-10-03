@@ -1,0 +1,19 @@
+---
+import { TOOLS } from '../site';
+
+const others = TOOLS.filter((tool) => tool.href !== Astro.url.pathname);
+---
+
+<section class="tool-grid" aria-labelledby="more-tools">
+  <h2 id="more-tools">More tools</h2>
+  <ul>
+    {
+      others.map((tool) => (
+        <li>
+          <a href={tool.href}>{tool.label}</a>
+          <p>{tool.blurb}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

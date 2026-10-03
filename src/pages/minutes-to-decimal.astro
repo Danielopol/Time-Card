@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro';
+import Converter from '../components/Converter.tsx';
+import DecimalChart from '../components/DecimalChart.astro';
+import Faq from '../components/Faq.astro';
+import ToolGrid from '../components/ToolGrid.astro';
+
+const faq = [
+  {
+    q: 'What is 40 minutes in decimal?',
+    a: '40 minutes is 0.67 hours. Divide 40 by 60 to get 0.6667, which rounds to 0.67 at two decimal places or 0.667 at three.',
+  },
+  {
+    q: 'What is 15 minutes as a decimal?',
+    a: '15 minutes is 0.25 hours, because 15 divided by 60 is 0.25. In the same way, 30 minutes is 0.50 hours and 45 minutes is 0.75 hours.',
+  },
+  {
+    q: 'How do I convert hours and minutes to decimal hours?',
+    a: 'Keep the whole hours and divide the minutes by 60. For 8 hours 40 minutes, 40 divided by 60 is 0.67, so the answer is 8.67 hours.',
+  },
+  {
+    q: 'Is 7.5 hours the same as 7 hours 50 minutes?',
+    a: 'No. 7.5 hours is 7 hours 30 minutes, because half an hour is 30 minutes. 7 hours 50 minutes is 7.83 hours. Mixing the two up is the most common mistake when filling in a timesheet.',
+  },
+  {
+    q: 'Should I use two or three decimal places?',
+    a: 'Most payroll systems use two decimal places. Three places are closer to the exact time: 40 minutes is 0.667 at three places and 0.67 at two. Use whichever your payroll software or employer uses.',
+  },
+  {
+    q: 'What does the "nearest quarter hour" column mean?',
+    a: 'It shows the decimal value after rounding to the nearest 15 minutes, which is how some employers round clock punches. From 1 to 7 minutes rounds down to 0.00, 8 to 22 minutes rounds to 0.25, 23 to 37 rounds to 0.50, 38 to 52 rounds to 0.75 and 53 to 60 rounds up to 1.00.',
+  },
+  {
+    q: 'How do I convert decimal hours back to minutes?',
+    a: 'Multiply the decimal part by 60. For 0.75 hours, 0.75 times 60 is 45 minutes.',
+  },
+];
+---
+
+<Base
+  title="Minutes to Decimal Hours Converter and Printable Chart"
+  description="Convert minutes or hours and minutes to decimal hours for payroll. Includes a printable minutes to decimal chart for 1 to 60 minutes."
+  appName="Minutes to Decimal Hours Converter"
+>
+  <h1>Minutes to Decimal Hours</h1>
+  <p class="lede">Convert hours and minutes to decimal hours for payroll. Divide the minutes by 60: 40 minutes is 40 ÷ 60 = 0.67 hours.</p>
+  <Converter direction="toDecimal" client:load />
+
+  <section>
+    <h2>Minutes to decimal chart</h2>
+    <p class="chart-actions no-print">
+      <button type="button" onclick="window.print()">Print chart</button>
+      <a class="button secondary" href="/decimal-hours-chart.pdf" download>Download PDF</a>
+    </p>
+    <DecimalChart />
+  </section>
+
+  <div class="prose no-print">
+    <section>
+      <h2>How to convert time to decimal hours</h2>
+      <ol>
+        <li>Keep the whole hours as they are.</li>
+        <li>Divide the minutes by 60.</li>
+        <li>Add the two together and round to two decimal places.</li>
+      </ol>
+      <p>
+        For 8 hours 40 minutes: 40 ÷ 60 = 0.67, so the time is 8 + 0.67 = 8.67 hours. For minutes on their own, the answer is just the division: 15
+        minutes is 0.25 hours, 30 minutes is 0.50 hours and 45 minutes is 0.75 hours.
+      </p>
+      <p>
+        The converter accepts minutes (<kbd>40</kbd>), hours and minutes (<kbd>8:40</kbd>) or text such as <kbd>1h 15m</kbd>. Type in the decimal box to
+        go the other way, or use the <a href="/decimal-to-minutes/">decimal to minutes converter</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Why payroll uses decimal hours</h2>
+      <p>
+        Pay is hours multiplied by a rate, and you cannot multiply "8:40" by a dollar amount. Converted to a decimal, 8 hours 40 minutes at $18.50 an
+        hour is 8.67 × $18.50 = $160.40.
+      </p>
+      <p>
+        A time written as 8:40 is not 8.40 hours. Entering it that way would pay for 8 hours 24 minutes, which is 16 minutes short.
+      </p>
+    </section>
+
+    <section>
+      <h2>Converting a whole week</h2>
+      <p>
+        To add up clock-in and clock-out times for a week and get decimal hours, overtime and gross pay in one step, use
+        the <a href="/">time card calculator</a>.
+      </p>
+    </section>
+  </div>
+
+  <Faq items={faq} />
+  <ToolGrid />
+</Base>
