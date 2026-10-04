@@ -1,6 +1,11 @@
 export const SITE = {
   name: 'Hours Total',
   url: 'https://hourstotal.com',
+  /** Shown on the About page as the person who runs the site. Leave empty to show no name. */
+  owner: '',
+  email: 'contact@hourstotal.com',
+  /** Date the privacy policy last changed. */
+  policyUpdated: 'October 3, 2026',
 };
 
 export interface Tool {

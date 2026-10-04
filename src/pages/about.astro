@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import ToolGrid from '../components/ToolGrid.astro';
+import { RULE_SETS } from '../engine/rules/index';
+import { SITE } from '../site';
+
+const rules = Object.values(RULE_SETS);
+---
+
+<Base
+  title={`About ${SITE.name}: Who Runs It and How the Calculators Work`}
+  description={`${SITE.name} is a set of free payroll time calculators. How the hours, overtime and pay figures are worked out, and the sources behind the overtime rules.`}
+>
+  <div class="prose">
+    <h1>About {SITE.name}</h1>
+    <p class="lede">Free calculators for hours worked, overtime and pay, with no sign-up.</p>
+
+    <section>
+      <h2>What this site is</h2>
+      <p>
+        {SITE.name} is for people who add up working hours: employees checking a paycheck, and managers and payroll staff totalling hours each pay
+        period. Every tool is free, works without an account, and keeps what you type in your own browser. See the
+        <a href="/privacy/">privacy policy</a> for the details.
+      </p>
+      {
+        SITE.owner && (
+          <p>
+            The site is built and maintained by {SITE.owner}. It is independent and is not affiliated with any payroll or time-tracking company.
+          </p>
+        )
+      }
+    </section>
+
+    <section>
+      <h2>How the calculators work</h2>
+      <ul>
+        <li>
+          <strong>Whole minutes.</strong> All time is held as whole minutes and converted to decimal hours only for display. This avoids the small
+          rounding errors that come from adding decimals.
+        </li>
+        <li>
+          <strong>Hours worked.</strong> For each day, the time from clock-in to clock-out, less the unpaid lunch. A clock-out earlier than the
+          clock-in is counted as the next day.
+        </li>
+        <li>
+          <strong>Decimal hours.</strong> Minutes divided by 60, rounded to two decimal places. 40 minutes is 0.67 hours.
+        </li>
+        <li>
+          <strong>Rounding.</strong> If you choose it, each clock time is rounded to the nearest 5, 6 or 15 minutes before the hours are added up.
+        </li>
+        <li>
+          <strong>Overtime.</strong> Worked out one workweek at a time, using the rule set you select. An hour is never counted as overtime twice.
+        </li>
+        <li>
+          <strong>Gross pay.</strong> Regular hours at your rate, overtime at 1.5 times and double time at 2 times, each rounded to the cent. Taxes
+          and deductions are not included.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Sources for the overtime rules</h2>
+      <p>Each overtime rule set is checked against the law it comes from. These are the sources and the date each was last reviewed.</p>
+      <table class="chart">
+        <thead>
+          <tr>
+            <th scope="col">Rules</th>
+            <th scope="col">Sources</th>
+            <th scope="col">Last reviewed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rules.map((rule) => (
+              <tr>
+                <th scope="row">{rule.name}</th>
+                <td>
+                  <ul class="plain">
+                    {rule.sources.map((source) => (
+                      <li>
+                        <a href={source.url} rel="noopener">{source.label}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+                <td>{rule.lastReviewed}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>What the calculators do not cover</h2>
+      <ul>
+        <li>Whether a job is exempt from overtime. That depends on duties and salary, not on these calculations.</li>
+        <li>Pay with more than one hourly rate, or with bonuses and commissions that change the overtime rate.</li>
+        <li>City and county rules, union contracts and industry-specific wage orders.</li>
+        <li>Taxes, deductions and take-home pay.</li>
+      </ul>
+      <p>
+        The results are estimates to help you check your hours and pay. They are not legal, tax or payroll advice. For a decision that matters, check
+        with your employer, your state labor office or a payroll professional.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>
+        Found a mistake, or a rule that has changed? Email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. Corrections are welcome.
+      </p>
+    </section>
+  </div>
+  <ToolGrid />
+</Base>

@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site';
+
+const host = new URL(SITE.url).host;
+---
+
+<Base title={`Privacy Policy | ${SITE.name}`} description={`How ${host} handles your data: what you type into the calculators stays in your browser and is never sent to us.`}>
+  <div class="prose">
+    <h1>Privacy Policy</h1>
+    <p class="lede">Last updated {SITE.policyUpdated}.</p>
+
+    <section>
+      <h2>The short version</h2>
+      <p>
+        What you type into the calculators on {host} stays in your browser. It is not sent to us, and we have no accounts, no advertising and no
+        tracking cookies.
+      </p>
+    </section>
+
+    <section>
+      <h2>What the calculators store</h2>
+      <p>
+        The time card calculator saves the card you are working on, and any cards you choose to save by name, in your browser's local storage on your
+        own device. This is what lets a card still be there when you come back. We cannot see it, and it is not copied anywhere else.
+      </p>
+      <p>
+        To remove it, use Clear or Delete on the time card, or clear this site's data in your browser settings. Using a private or incognito window
+        means nothing is kept after you close it.
+      </p>
+      <p>The other calculators and converters do not store anything.</p>
+    </section>
+
+    <section>
+      <h2>Share links</h2>
+      <p>
+        "Copy share link" puts the contents of the time card into the link itself, in the part after the # sign. Browsers do not send that part of an
+        address to any server, so we never receive it. Anyone you give the link to can read the card, including the name and hourly rate on it, so share
+        it only with people who should see it.
+      </p>
+    </section>
+
+    <section>
+      <h2>What our hosting provider receives</h2>
+      <p>
+        The site is hosted by Cloudflare. Like any web host, Cloudflare receives the technical details of each request, such as your IP address, the
+        page requested, and your browser type, in order to deliver the page and protect the site from abuse. Cloudflare handles this information under
+        its own <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">privacy policy</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Cookies, analytics and third parties</h2>
+      <p>
+        We do not set cookies. We do not run analytics, advertising or social media scripts, and the pages load no fonts or code from other companies.
+        We do not sell or share personal information, because we do not collect any.
+      </p>
+      <p>
+        Some pages link to government websites as sources for overtime rules. Those sites have their own privacy policies.
+      </p>
+    </section>
+
+    <section>
+      <h2>Email</h2>
+      <p>
+        If you email us, we receive your address and whatever you write, and use them only to reply.
+      </p>
+    </section>
+
+    <section>
+      <h2>Changes</h2>
+      <p>
+        If we add analytics, advertising or anything else that changes what is collected, we will update this page and the date at the top before it
+        takes effect.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Questions about this policy: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+    </section>
+  </div>
+</Base>
