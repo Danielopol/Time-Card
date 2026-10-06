@@ -1,0 +1,162 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { formatDecimalHours } from '../../engine/time';
+
+// Two workweeks in one biweekly pay period, run through the federal rules at $20 an hour.
+const rateCents = 2000;
+const week1 = workedExample(RULE_SETS.federal, [10, 10, 10, 10, 10, 0, 0], rateCents);
+const week2 = workedExample(RULE_SETS.federal, [10, 10, 10, 0, 0, 0, 0], rateCents);
+const weeks = [week1, week2];
+const totalMinutes = weeks.reduce((sum, w) => sum + w.minutes.reduce((a, b) => a + b, 0), 0);
+const paidCents = weeks.reduce((sum, w) => sum + w.pay.total, 0);
+// What averaging the two weeks would wrongly pay: 80 hours is 40 a week on average, so no overtime.
+const averagedCents = Math.round((totalMinutes * rateCents) / 60);
+const overtimeMinutes = weeks.reduce((sum, w) => sum + w.totals.overtime, 0);
+
+if (overtimeMinutes !== 600 || paidCents !== 170000 || averagedCents !== 160000) throw new Error('The biweekly example no longer matches the text.');
+
+const faq = [
+  {
+    q: 'Is overtime calculated every two weeks on a biweekly schedule?',
+    a: 'No. Overtime is counted one workweek at a time, even when you are paid every two weeks. A biweekly pay period holds two workweeks, and each is checked against the 40-hour limit on its own.',
+  },
+  {
+    q: 'Can my employer average my hours over two weeks?',
+    a: 'No. The federal rule takes a single workweek as its standard and does not permit averaging hours over two or more weeks. Working 30 hours one week and 50 the next means 10 hours of overtime in the second week.',
+  },
+  {
+    q: 'When does overtime have to be paid?',
+    a: 'Overtime earned in a workweek must be paid on the regular payday for the pay period in which that workweek ends. If the exact amount cannot be worked out by then, payment can be delayed only as long as reasonably necessary, and never past the next payday after it can be worked out.',
+  },
+  {
+    q: 'What if my workweek starts on a Sunday, not a Monday?',
+    a: 'Use the "Week starts on" setting in the time card calculator to match it. A workweek can begin on any day and hour, and moving the start day can change which hours count together.',
+  },
+  {
+    q: 'How many paychecks do I get in a year?',
+    a: 'Weekly pay is 52 paychecks, biweekly is usually 26 (27 in some years), semi-monthly is 24 and monthly is 12. The number of paychecks does not change how overtime is counted.',
+  },
+];
+---
+
+<Guide
+  slug="biweekly-vs-semi-monthly-overtime"
+  lede="How often you are paid and how overtime is counted are two separate things. Overtime follows the workweek, whether you are paid weekly, every two weeks, twice a month or monthly."
+  sources={[
+    { label: '29 CFR 778.104: Each workweek stands alone', url: 'https://www.law.cornell.edu/cfr/text/29/778.104' },
+    { label: '29 CFR 778.105: Determining the workweek', url: 'https://www.law.cornell.edu/cfr/text/29/778.105' },
+    { label: '29 CFR 778.106: Time of payment', url: 'https://www.law.cornell.edu/cfr/text/29/778.106' },
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+  ]}
+  faq={faq}
+  tools={['/', '/overtime-calculator/', '/hours-calculator/']}
+>
+  <section>
+    <h2>Pay period and workweek are different</h2>
+    <p>
+      A <strong>pay period</strong> is how often you are paid. A <strong>workweek</strong> is the period overtime is counted over: a fixed and regularly
+      recurring period of 168 hours, which is seven consecutive 24-hour periods. It does not have to match the calendar week and can begin on any day
+      and hour, but once set it stays fixed.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Pay period</th>
+          <th scope="col">How often</th>
+          <th scope="col">Paychecks a year</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Weekly</th><td>Every week</td><td>52</td></tr>
+        <tr><th scope="row">Biweekly</th><td>Every two weeks</td><td>26, or 27 in some years</td></tr>
+        <tr><th scope="row">Semi-monthly</th><td>Twice a month, on set dates such as the 15th and the last day</td><td>24</td></tr>
+        <tr><th scope="row">Monthly</th><td>Once a month</td><td>12</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Each workweek stands alone</h2>
+    <p>
+      The federal rule takes a single workweek as its standard. It does not allow hours to be averaged over two or more weeks, and this holds however
+      employees are paid, whether daily, weekly, biweekly or monthly.
+    </p>
+    <p>
+      Here is a biweekly pay period at $20 an hour. In the first week the employee works five 10-hour days. In the second they work three.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Workweek</th>
+          <th scope="col">Hours</th>
+          <th scope="col">Regular</th>
+          <th scope="col">Overtime</th>
+          <th scope="col">Pay</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          weeks.map((w, i) => (
+            <tr>
+              <th scope="row">Week {i + 1}</th>
+              <td>{formatDecimalHours(w.minutes.reduce((a, b) => a + b, 0))}</td>
+              <td>{formatDecimalHours(w.totals.regular)}</td>
+              <td>{formatDecimalHours(w.totals.overtime)}</td>
+              <td>{formatMoney(w.pay.total)}</td>
+            </tr>
+          ))
+        }
+        <tr>
+          <th scope="row">Pay period</th>
+          <td>{formatDecimalHours(totalMinutes)}</td>
+          <td>{formatDecimalHours(weeks.reduce((s, w) => s + w.totals.regular, 0))}</td>
+          <td>{formatDecimalHours(overtimeMinutes)}</td>
+          <td><strong>{formatMoney(paidCents)}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The pay period adds up to {formatDecimalHours(totalMinutes)} hours, which is an average of 40 a week. Averaging would pay no overtime and a total
+      of {formatMoney(averagedCents)}. Counting each workweek on its own gives {formatDecimalHours(overtimeMinutes)} hours of overtime and
+      {formatMoney(paidCents)}.
+    </p>
+  </section>
+
+  <section>
+    <h2>Semi-monthly pay and workweeks that cross two periods</h2>
+    <p>
+      A semi-monthly pay period follows the calendar, so a workweek often falls across two of them. Overtime earned in a workweek must be paid on the
+      regular payday for the pay period in which that workweek ends.
+    </p>
+    <p>
+      For example, take pay periods of the 1st to the 15th and the 16th to the end of the month, and a workweek that runs from Monday, January 26 to
+      Sunday, February 1, 2026. The workweek ends on February 1, so its overtime is due on the payday for the February 1 to 15 period.
+    </p>
+    <p>
+      If the exact overtime cannot be worked out by that payday, the employer may delay paying it, but only as long as reasonably necessary and never
+      past the next payday after it can be worked out. This is one reason a paycheck can show overtime for hours worked in the previous pay period.
+    </p>
+    <p>
+      Semi-monthly periods also hold different numbers of days, so an hourly employee on a steady schedule will see hours that vary from one paycheck
+      to the next.
+    </p>
+  </section>
+
+  <section>
+    <h2>Using the time card calculator</h2>
+    <ul>
+      <li>Tick "Two weeks (biweekly)" to get 14 days on one card. The calculator works out overtime for each workweek on its own.</li>
+      <li>
+        Set "Week starts on" to the day your employer's workweek starts. A workweek can start on any day, so a card that starts on Monday can split
+        your hours differently from a payroll week that starts on Sunday.
+      </li>
+      <li>For a semi-monthly or monthly pay period, enter each workweek that falls in it, one card per week.</li>
+    </ul>
+    <p>
+      To check hours against a paycheck, see <a href="/guides/check-your-paycheck-hours/">how to check the hours on your paycheck</a>.
+    </p>
+  </section>
+</Guide>

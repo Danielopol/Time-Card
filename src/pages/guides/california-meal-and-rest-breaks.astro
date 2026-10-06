@@ -1,0 +1,143 @@
+---
+import Guide from '../../layouts/Guide.astro';
+
+const faq = [
+  {
+    q: 'How long is a lunch break in California?',
+    a: 'At least 30 minutes. A meal period is required when the work period is more than 5 hours, and it must start no later than the end of the fifth hour of work.',
+  },
+  {
+    q: 'Can I skip my meal break in California?',
+    a: 'Sometimes. If the total work period is no more than 6 hours, you and your employer can agree to waive the first meal break. A second meal break, required after 10 hours, can be waived only if the total is no more than 12 hours and the first meal break was taken.',
+  },
+  {
+    q: 'Are rest breaks paid in California?',
+    a: 'Yes. Rest breaks are paid, 10 minutes for each 4 hours worked or major fraction of 4 hours, taken near the middle of each work period where practicable.',
+  },
+  {
+    q: 'Is the meal break paid?',
+    a: 'An off-duty meal break is normally unpaid. An on-duty meal period is allowed only when the nature of the work prevents the employee being relieved of duty, and it counts as time worked.',
+  },
+  {
+    q: 'What if I work through my lunch break?',
+    a: 'The employer owes one additional hour of pay at your regular rate for that workday, because the meal period was not provided. The employer must also pay for the time you worked during the meal period if it knew or reasonably should have known you were working.',
+  },
+];
+---
+
+<Guide
+  slug="california-meal-and-rest-breaks"
+  lede="California requires a 30-minute meal break after 5 hours of work and paid 10-minute rest breaks, and it adds extra pay when they are missed. Here is how the timing works."
+  sources={[
+    {
+      label: 'California Labor Code § 512 (meal periods)',
+      url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=512.&lawCode=LAB',
+    },
+    {
+      label: 'California Labor Code § 226.7 (pay for missed meal and rest periods)',
+      url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=226.7.&lawCode=LAB',
+    },
+    {
+      label: 'Donohue v. AMN Services, LLC, California Supreme Court, No. S253677 (February 25, 2021)',
+      url: 'https://supreme.courts.ca.gov/sites/default/files/supremecourt/default/2022-08/S253677.pdf',
+    },
+    { label: 'California Labor Commissioner: Rest Periods', url: 'https://www.dir.ca.gov/dlse/faq_restperiods.htm' },
+    { label: 'U.S. Department of Labor: meal period requirements by state (table dated January 2023)', url: 'https://www.dol.gov/agencies/whd/state/meal-breaks' },
+    { label: 'U.S. Department of Labor: rest period requirements by state (table dated January 2023)', url: 'https://www.dol.gov/agencies/whd/state/rest-periods' },
+  ]}
+  faq={faq}
+  tools={['/', '/hours-calculator/', '/overtime-calculator/']}
+>
+  <section>
+    <h2>Meal breaks</h2>
+    <p>
+      Under Labor Code section 512, an employer may not make an employee work more than 5 hours in a day without a meal period of at least 30 minutes.
+      If the whole work period is 6 hours or less, the employee and employer can agree to waive it.
+    </p>
+    <p>
+      For more than 10 hours of work, a second meal period of at least 30 minutes is required. It can be waived by agreement only if the total is no
+      more than 12 hours and the first meal period was not waived.
+    </p>
+    <p>
+      The timing matters as well as the length. The California Supreme Court describes the rule as one 30-minute meal period that begins no later than
+      the end of the fifth hour of work, and another that begins no later than the end of the tenth hour.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Time worked in the day</th>
+          <th scope="col">Meal periods</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">5 hours or less</th><td>None required</td></tr>
+        <tr><th scope="row">More than 5, up to 6 hours</th><td>One, unless waived by agreement</td></tr>
+        <tr><th scope="row">More than 6, up to 10 hours</th><td>One</td></tr>
+        <tr><th scope="row">More than 10, up to 12 hours</th><td>Two. The second can be waived by agreement only if the first was taken</td></tr>
+        <tr><th scope="row">More than 12 hours</th><td>Two</td></tr>
+      </tbody>
+    </table>
+    <p>
+      An employee must be relieved of duty during a meal period. When the nature of the work prevents that, an on-duty meal period is allowed and counts
+      as time worked. Section 512 also sets out exceptions for some industries and for some employees covered by union contracts.
+    </p>
+  </section>
+
+  <section>
+    <h2>Rest breaks</h2>
+    <p>
+      Employees get a paid rest break of 10 minutes for each 4 hours worked or major fraction of 4 hours, taken near the middle of each work period
+      where practicable. The Labor Commissioner treats anything over 2 hours as a major fraction of 4, and says no rest break is required for 3½ hours
+      of work or less.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Time worked in the day</th>
+          <th scope="col">Paid 10-minute rest breaks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">3½ hours or less</th><td>None required</td></tr>
+        <tr><th scope="row">More than 3½, up to 6 hours</th><td>One</td></tr>
+        <tr><th scope="row">More than 6, up to 10 hours</th><td>Two</td></tr>
+        <tr><th scope="row">More than 10, up to 14 hours</th><td>Three</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Extra pay when a break is missed</h2>
+    <p>
+      If an employer does not provide a required meal or rest period, Labor Code section 226.7 requires one additional hour of pay at the employee's
+      regular rate for each workday that the period was not provided. For rest periods, the Labor Commissioner says this is one additional hour for
+      the workday, not one for each rest period missed.
+    </p>
+    <p>
+      The extra hour is separate from pay for the time worked. If an employer knew or reasonably should have known that an employee was working
+      through a meal period, it must also pay for that time.
+    </p>
+  </section>
+
+  <section>
+    <h2>Records and rounding</h2>
+    <p>
+      Employers must record meal periods. Under <em>Donohue v. AMN Services</em>, time records that show a missing, short or late meal period raise a
+      presumption that the meal period was not provided. The same decision held that meal period punches cannot be rounded, so a 28-minute meal break
+      cannot be treated as 30.
+    </p>
+  </section>
+
+  <section>
+    <h2>How the time card calculator helps</h2>
+    <p>
+      Choose California under Overtime rules in the <a href="/?rules=california">time card calculator</a> and enter your lunch punches. For each day it
+      notes when no meal break was recorded, when a meal break was shorter than 30 minutes, when it started after the fifth hour, and when a second meal
+      break looks due. The notes use the exact times you typed.
+    </p>
+    <p>
+      The notes are reminders, not a legal finding, and they never change the pay totals. The card records one lunch a day, and it does not check rest
+      breaks. Overtime in California is covered on the <a href="/states/california/">California overtime rules</a> page.
+    </p>
+  </section>
+</Guide>

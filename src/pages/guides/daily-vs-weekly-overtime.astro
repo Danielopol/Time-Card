@@ -1,0 +1,168 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { formatDecimalHours } from '../../engine/time';
+import { statePath } from '../../states';
+
+// The same weeks run through every rule set, at $15 an hour (below Nevada's daily-overtime wage threshold).
+const rateCents = 1500;
+const schedules = [
+  { label: 'Four 10-hour days (40 hours)', hours: [10, 10, 10, 10, 0, 0, 0] },
+  { label: 'One 13-hour day', hours: [13, 0, 0, 0, 0, 0, 0] },
+];
+const ruleSets = [RULE_SETS.federal, RULE_SETS.california, RULE_SETS.alaska, RULE_SETS.nevada, RULE_SETS.colorado];
+const rows = ruleSets.map((rules) => ({
+  name: rules.name,
+  cells: schedules.map((s) => {
+    const result = workedExample(rules, s.hours, rateCents);
+    const { regular, overtime, doubleTime } = result.totals;
+    const parts = [`${formatDecimalHours(regular)} regular`];
+    if (overtime) parts.push(`${formatDecimalHours(overtime)} overtime`);
+    if (doubleTime) parts.push(`${formatDecimalHours(doubleTime)} double time`);
+    return { hours: parts.join(', '), pay: formatMoney(result.pay.total) };
+  }),
+}));
+
+const faq = [
+  {
+    q: 'Does federal law require daily overtime?',
+    a: 'No. The Fair Labor Standards Act counts overtime by the workweek only: hours over 40 in a workweek are paid at 1.5 times the regular rate. It does not require overtime for a long day on its own, or for weekend work as such.',
+  },
+  {
+    q: 'Which states have daily overtime?',
+    a: 'The Department of Labor\'s table lists daily overtime thresholds for Alaska (8 hours), California (8 hours, with double time after 12), Colorado (12 hours) and Nevada (8 hours, for employees earning less than 1.5 times the minimum wage), and also for Puerto Rico and the U.S. Virgin Islands (8 hours). Oregon has a 10-hour daily rule for some manufacturing work.',
+  },
+  {
+    q: 'Do I get overtime for working on a Saturday or Sunday?',
+    a: 'Not under federal law, which does not require overtime for work on a Saturday, Sunday or holiday as such. The hours count toward the weekly 40 like any others. Some places have a seventh-day rule, such as California.',
+  },
+  {
+    q: 'Can daily and weekly overtime both be paid for the same hour?',
+    a: 'No. Alaska\'s law leaves hours paid as daily overtime out of the weekly count, California does not require combining more than one overtime rate for an hour, and Colorado applies whichever calculation pays more.',
+  },
+  {
+    q: 'What is a workweek?',
+    a: 'A fixed and regularly recurring period of 168 hours, which is seven consecutive 24-hour periods. It does not have to match the calendar week and can start on any day and hour, but once set it stays fixed.',
+  },
+];
+---
+
+<Guide
+  slug="daily-vs-weekly-overtime"
+  lede="Federal law counts overtime by the week. A few states also count it by the day, so the same hours can pay differently depending on where you work."
+  sources={[
+    { label: '29 CFR 778.105: Determining the workweek', url: 'https://www.law.cornell.edu/cfr/text/29/778.105' },
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+    {
+      label: 'U.S. Department of Labor: state minimum wage and premium pay table (updated July 1, 2026)',
+      url: 'https://www.dol.gov/agencies/whd/minimum-wage/state',
+    },
+  ]}
+  faq={faq}
+  tools={['/', '/overtime-calculator/', '/hours-calculator/']}
+>
+  <section>
+    <h2>Weekly overtime: the federal rule</h2>
+    <p>
+      Under the Fair Labor Standards Act, employees covered by the law must be paid at least 1.5 times their regular rate for hours over 40 in a
+      workweek. The workweek is a fixed and regularly recurring period of 168 hours, which is seven consecutive 24-hour periods. It can start on any
+      day and hour, but once it is set it stays the same.
+    </p>
+    <p>
+      The federal law counts the workweek only. It does not require overtime for a long day on its own, and it does not require extra pay for work on a
+      Saturday, Sunday or holiday as such.
+    </p>
+  </section>
+
+  <section>
+    <h2>Daily overtime: where it applies</h2>
+    <p>
+      Some states and territories add a daily rule. The Department of Labor's table of state premium pay rules, last updated July 1, 2026, lists a daily
+      threshold for these places:
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Place</th>
+          <th scope="col">Daily overtime</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><a href={statePath('alaska')}>Alaska</a></th><td>After 8 hours a day, and after 40 a week</td></tr>
+        <tr><th scope="row"><a href={statePath('california')}>California</a></th><td>1.5 times after 8 hours a day, and double time after 12</td></tr>
+        <tr><th scope="row"><a href={statePath('colorado')}>Colorado</a></th><td>After 12 hours a day, and after 40 a week</td></tr>
+        <tr><th scope="row"><a href={statePath('nevada')}>Nevada</a></th><td>After 8 hours a day for employees earning less than 1.5 times the minimum wage</td></tr>
+        <tr><th scope="row">Puerto Rico</th><td>After 8 hours a day, and after 40 a week</td></tr>
+        <tr><th scope="row">U.S. Virgin Islands</th><td>After 8 hours a day, and after 40 a week</td></tr>
+        <tr><th scope="row">Oregon</th><td>After 10 hours a day, for some manufacturing, mill and packing work only</td></tr>
+      </tbody>
+    </table>
+    <p>
+      A few places also have a seventh-day rule. California pays 1.5 times for the first 8 hours on the seventh day of work in a workweek and double
+      time after that. Kentucky pays 1.5 times for the seventh day when an employee works all seven days. The table lists others, some for particular
+      industries.
+    </p>
+    <p>
+      Weekly thresholds are not always 40 either. The table shows 48 hours for Minnesota, for example. Federal rules can apply as well as state rules,
+      so check with your state labor office which applies to you. This site has overtime rules for <a href="/states/">federal and four states</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>How daily and weekly rules combine</h2>
+    <p>
+      When a place has both rules, an hour is not paid as overtime twice. The details differ, but the result is the same idea: you get the greater of
+      the daily and weekly overtime, not both added together.
+    </p>
+    <ul>
+      <li>Alaska's law says that when working out whether someone has worked over 40 hours in a week, hours paid as daily overtime are left out.</li>
+      <li>California does not require an employer to combine more than one overtime rate for the same hour.</li>
+      <li>Colorado applies whichever of its daily, weekly and consecutive-hours calculations pays the employee the most.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>The same hours, different rules</h2>
+    <p>
+      Here are two weeks run through each set of rules at $15 an hour. The figures come from the same code as the calculators.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Rules</th>
+          {schedules.map((s) => <th scope="col">{s.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.name}</th>
+              {row.cells.map((cell) => (
+                <td>
+                  {cell.hours}
+                  <br />
+                  <strong>{cell.pay}</strong>
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      Four 10-hour days are 40 hours, so federal rules pay no overtime. California, Alaska and Nevada count the 2 hours over 8 on each day. Colorado
+      does not, because its daily rule starts at 12 hours. Nevada's daily rule applies here because $15 is below 1.5 times the state minimum wage, unless the employee is on an agreed schedule of four 10-hour days, which has no daily overtime.
+    </p>
+  </section>
+
+  <section>
+    <h2>Check your own week</h2>
+    <p>
+      Pick your rules under Overtime rules in the <a href="/">time card calculator</a> and enter your times. It splits each day into regular, overtime
+      and double-time hours. To work out the pay for hours you already know, use the <a href="/overtime-calculator/">overtime calculator</a>.
+    </p>
+  </section>
+</Guide>

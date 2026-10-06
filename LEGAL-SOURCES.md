@@ -64,3 +64,38 @@ Checked on 3 October 2026. This records which law each rule in `src/engine/rules
 - **January**: Colorado's new COMPS Order; any statute changes taking effect on 1 January.
 - **July**: Nevada's minimum wage bulletin and the daily-overtime threshold in the Nevada note.
 - Update `lastReviewed` in the rule data whenever a rule set is re-read.
+
+## Added 6 October 2026: guides, state pages and the widget
+
+Sources read for the six guides and the four state pages. Everything below was read in full unless it says otherwise.
+
+### Department of Labor state table (read directly)
+
+The table at <https://www.dol.gov/agencies/whd/minimum-wage/state>, marked "Updated July 1, 2026", was read in a browser, not through a summary. It lists:
+
+- **Daily overtime:** Alaska (8 hours), California (8, double time after 12), Colorado (12), Nevada (8, for employees earning less than 1.5 times the minimum wage), Puerto Rico (8), U.S. Virgin Islands (8), and Oregon (10 hours, for some manufacturing, mill and packing work).
+- **Seventh-day rules:** California, Kentucky (when all seven days are worked), the Virgin Islands (6th or 7th consecutive day), Connecticut (restaurants and hotel restaurants), and a statutory rest day in Puerto Rico.
+- **Other weekly thresholds:** 48 hours for Minnesota, 44 for New York residential workers, 45 for North Carolina seasonal amusement, and 52 for Missouri seasonal amusement.
+- **Nevada:** a basic minimum rate of $12.00 an hour, and the premium pay rule above. 1.5 times $12.00 is $18.00, so the $18.00 threshold on the Nevada pages is now confirmed against an official source. The Labor Commissioner's own bulletin was still not opened.
+- **Alaska:** the 10-hour flexible work hour plan and the fewer-than-four-employees exemption.
+
+### California
+
+- **Labor Code § 512 timing and § 226.7(c)** are confirmed from the California Supreme Court's opinion in *Donohue v. AMN Services, LLC* (No. S253677, February 25, 2021), which sets out both. The first meal period begins no later than the end of the fifth hour of work and the second no later than the end of the tenth. A missed meal period costs one additional hour of pay at the regular rate for each workday it is not provided. <https://supreme.courts.ca.gov/sites/default/files/supremecourt/default/2022-08/S253677.pdf>
+- **Rounding:** *Donohue* holds that employers cannot round time punches in the meal period context. It also describes *See's Candy Shops v. Superior Court* (2012) 210 Cal.App.4th 889, a court of appeal decision allowing neutral rounding of work time. *See's Candy* itself was not read separately.
+- **Rest periods:** the DOL table dated January 2023 gives a paid 10-minute rest period for each 4 hours worked or major fraction of that, with no requirement under 3½ hours. The Labor Commissioner's statements that more than 2 hours is a "major fraction" of 4 and that the extra pay for rest periods is one hour per workday come from a search summary of <https://www.dir.ca.gov/dlse/faq_restperiods.htm>, which could not be opened from here.
+
+### Federal
+
+- **29 CFR 778.104** (each workweek stands alone), **778.105** (the workweek is a fixed, recurring 168 hours), **778.106** (overtime is paid on the regular payday for the period in which the workweek ends) and **Fact Sheet #23** (revised October 2019) were read in full.
+
+### Changes made to the rule data
+
+- The Nevada note no longer says daily overtime counts hours "in the 24 hours after a shift starts". That came from a search summary of the bulletin, and the statute says "workday", whose definition (NRS 608.0126) was not read. The note now says the calculator treats each row of the card as one workday.
+- The DOL table was added as a source on the California, Alaska, Nevada and Colorado rule sets, and all review dates are now 2026-10-06.
+
+### Still open
+
+- **Colorado meal periods:** a summary of the DOL's January 2023 meal-period table said Colorado's rule applies only to certain industries. The COMPS Order #40 text, read directly, has no such limit in Rule 5.1, so the Colorado page follows the order. Worth a check with the Colorado Division of Labor Standards and Statistics.
+- **Unreachable from here:** dir.ca.gov and labor.nv.gov did not respond. akleg.gov and leg.state.nv.us show a bot check to automated browsers. All four are linked as sources and load normally in an ordinary browser.
+- **Not covered by any page:** exempt employees, multiple pay rates, bonuses that change the regular rate, and local rules.

@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import { GUIDES, formatDate, guidePath } from '../../guides';
+import { STATES, statePath } from '../../states';
+---
+
+<Base
+  title="Payroll Time Guides: Rounding, Overtime and Pay Periods"
+  description="Plain-language guides to payroll time: the 7-minute rule, daily and weekly overtime, California meal breaks, pay periods and how to check your paycheck."
+>
+  <div class="prose">
+    <h1>Payroll Time Guides</h1>
+    <p class="lede">Short, sourced guides to the questions that come up when you add up hours and check your pay.</p>
+
+    <ul class="guide-list">
+      {
+        GUIDES.map((guide) => (
+          <li>
+            <a href={guidePath(guide.slug)}>{guide.title}</a>
+            <p>{guide.description}</p>
+            <p class="hint">Updated {formatDate(guide.updated)}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <section>
+      <h2>Overtime rules by state</h2>
+      <p>
+        Each state page explains the rules, shows worked examples and links to the law. See <a href="/states/">overtime rules by state</a>, or go
+        straight to {
+          STATES.map((state, i) => (
+            <>
+              {i > 0 && (i === STATES.length - 1 ? ' or ' : ', ')}
+              <a href={statePath(state.slug)}>{state.name}</a>
+            </>
+          ))
+        }.
+      </p>
+    </section>
+  </div>
+</Base>

@@ -5,3 +5,13 @@
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The embeddable widgets are meant to be framed by other sites.
+/embed/converter/
+  ! X-Frame-Options
+/embed/converter/*
+  ! X-Frame-Options
+/embed/chart/
+  ! X-Frame-Options
+/embed/chart/*
+  ! X-Frame-Options

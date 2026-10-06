@@ -6,5 +6,5 @@ import { SITE } from './src/site.ts';
 export default defineConfig({
   site: SITE.url,
   trailingSlash: 'always',
-  integrations: [preact(), sitemap()],
+  integrations: [preact(), sitemap({ filter: (page) => !/\/embed\/(converter|chart)\/$/.test(page) })],
 });

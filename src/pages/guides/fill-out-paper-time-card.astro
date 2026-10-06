@@ -1,0 +1,143 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { format12, formatDecimalHours, formatHM, parseTime } from '../../engine/time';
+
+// A filled-in example week, worked out by the same code as the time card.
+const t = (s: string) => parseTime(s)!;
+const week = [
+  { day: 'Monday', in: '8:00 AM', lunchOut: '12:00 PM', lunchIn: '12:30 PM', out: '4:30 PM' },
+  { day: 'Tuesday', in: '8:00 AM', lunchOut: '12:00 PM', lunchIn: '12:45 PM', out: '5:00 PM' },
+  { day: 'Wednesday', in: '8:30 AM', lunchOut: '12:30 PM', lunchIn: '1:00 PM', out: '5:15 PM' },
+  { day: 'Thursday', in: '8:00 AM', lunchOut: '12:00 PM', lunchIn: '12:30 PM', out: '4:30 PM' },
+  { day: 'Friday', in: '7:45 AM', lunchOut: '12:00 PM', lunchIn: '12:30 PM', out: '4:15 PM' },
+].map((d) => ({
+  ...d,
+  minutes: dayWorkedMinutes({ in: t(d.in), lunchOut: t(d.lunchOut), lunchIn: t(d.lunchIn), out: t(d.out) }),
+}));
+const total = week.reduce((sum, d) => sum + d.minutes, 0);
+if (total !== 40 * 60 + 30) throw new Error('The time card example no longer matches the text.');
+
+const faq = [
+  {
+    q: 'What goes on a time card?',
+    a: 'The employee\'s name, the dates covered, the time they started and finished each day, any unpaid break, the hours for each day and the total for the week. Many cards also have a line for the employee\'s and supervisor\'s signature.',
+  },
+  {
+    q: 'How do I take lunch off a time card?',
+    a: 'Write the time lunch started and the time it ended, then subtract the difference from the day. From 8:00 AM to 4:30 PM is 8 hours 30 minutes. A 30-minute lunch leaves 8 hours.',
+  },
+  {
+    q: 'How do I total the hours on a time card?',
+    a: 'Add the hours and the minutes separately, then turn every 60 minutes into one more hour. Five days of 8:00, 8:15, 8:15, 8:00 and 8:00 add up to 40 hours 30 minutes. For payroll, write that as 40.50 hours.',
+  },
+  {
+    q: 'Should I use AM and PM or the 24-hour clock?',
+    a: 'Either, but use one style on the whole card. The 24-hour clock avoids mixing up 5:00 AM and 5:00 PM, and 24-hour times such as 17:00 are easy to subtract.',
+  },
+  {
+    q: 'Is a paper time card the same as a timesheet?',
+    a: 'Yes, for most purposes. A time card and a timesheet both record the hours an employee works.',
+  },
+];
+---
+
+<Guide
+  slug="fill-out-paper-time-card"
+  lede="A paper time card records the hours you work. Here is what to write in each box, how to take out lunch, and how to total a week, with a free printable card from the calculator."
+  sources={[
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+  ]}
+  faq={faq}
+  tools={['/', '/minutes-to-decimal/', '/hours-calculator/', '/military-time-converter/']}
+>
+  <section>
+    <h2>Get a free printable card</h2>
+    <p>
+      Open the <a href="/">time card calculator</a> and choose <strong>Print blank time card</strong>. It prints a one-page card with a row for each day,
+      boxes for In, Lunch out, Lunch in and Out, a column for the day's hours, totals boxes and signature lines. Tick "Two weeks (biweekly)" first for a
+      two-week card.
+    </p>
+  </section>
+
+  <section>
+    <h2>What to write in each box</h2>
+    <ol>
+      <li><strong>Name and dates.</strong> Write your name at the top, and the week or pay period the card covers.</li>
+      <li><strong>In.</strong> The time you started work. Write it when you arrive, not at the end of the week.</li>
+      <li><strong>Lunch out and Lunch in.</strong> The times your unpaid break started and ended. Leave them empty if you did not take one.</li>
+      <li><strong>Out.</strong> The time you finished work.</li>
+      <li><strong>Hours.</strong> The time from In to Out, less the lunch.</li>
+      <li><strong>Total.</strong> The hours for the week, and your signature and the date.</li>
+    </ol>
+    <p>
+      Write each time with AM or PM, or use the 24-hour clock. If you are unsure how to read a 24-hour time, use the
+      <a href="/military-time-converter/">military time converter</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>A filled-in example</h2>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Day</th>
+          <th scope="col">In</th>
+          <th scope="col">Lunch out</th>
+          <th scope="col">Lunch in</th>
+          <th scope="col">Out</th>
+          <th scope="col">Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          week.map((d) => (
+            <tr>
+              <th scope="row">{d.day}</th>
+              <td>{format12(t(d.in))}</td>
+              <td>{format12(t(d.lunchOut))}</td>
+              <td>{format12(t(d.lunchIn))}</td>
+              <td>{format12(t(d.out))}</td>
+              <td>{formatHM(d.minutes)}</td>
+            </tr>
+          ))
+        }
+        <tr>
+          <th scope="row">Total</th>
+          <td colspan="4"></td>
+          <td><strong>{formatHM(total)}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Monday works out like this:</p>
+    <ol>
+      <li>8:00 AM to 4:30 PM is 8 hours 30 minutes.</li>
+      <li>The lunch from 12:00 PM to 12:30 PM is 30 minutes.</li>
+      <li>8 hours 30 minutes less 30 minutes is 8 hours, written 8:00.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Totalling the week</h2>
+    <p>
+      Add the hours and the minutes separately. Here the hours are 8 + 8 + 8 + 8 + 8 = 40, and the minutes are 0 + 15 + 15 + 0 + 0 = 30, so the week is
+      {formatHM(total)}.
+    </p>
+    <p>
+      Payroll needs a decimal. {formatHM(total)} is 40 + 30 ÷ 60 = {formatDecimalHours(total)} hours. Never write 8 hours 30 minutes as 8.30; it is 8.50.
+      The <a href="/minutes-to-decimal/">minutes to decimal chart</a> gives the decimal for every minute from 1 to 60. At 40 hours in a week, the
+      federal overtime limit is reached, so the extra 30 minutes here would be overtime under federal rules.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common mistakes</h2>
+    <ul>
+      <li>Forgetting to take lunch off, or taking it off twice.</li>
+      <li>Writing a time without AM or PM, so 5:00 could be morning or evening.</li>
+      <li>Writing minutes as a decimal, so 8:30 becomes 8.30.</li>
+      <li>Filling in the card at the end of the week from memory. Write the times as they happen.</li>
+      <li>Rounding the times without being told to. Your employer's policy decides whether punches are rounded. See <a href="/guides/7-minute-rule/">the 7-minute rule</a>.</li>
+    </ul>
+  </section>
+</Guide>

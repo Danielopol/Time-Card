@@ -3,6 +3,7 @@ export * from './round';
 export * from './money';
 export * from './rules/index';
 export * from './overtime';
+export * from './examples';
 export * from './timecard';
 export * from './meals';
 export * from './share';

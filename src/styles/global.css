@@ -623,6 +623,207 @@ kbd {
   }
 }
 
+.hint {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.crumbs {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.crumbs a {
+  color: inherit;
+}
+
+.meta {
+  margin: -0.25rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.guide-list {
+  margin: 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guide-list li {
+  padding: 1rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.guide-list a {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.guide-list p {
+  margin: 0.25rem 0 0;
+}
+
+.sources {
+  margin-top: 2.5rem;
+}
+
+.sources ul {
+  padding-left: 1.25rem;
+  font-size: 0.9375rem;
+}
+
+.prose .chart {
+  margin: 0.75rem 0 1rem;
+  font-size: 0.9375rem;
+}
+
+.chart td.num,
+.chart th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.example {
+  margin: 1.5rem 0;
+}
+
+.example h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.0625rem;
+}
+
+.example .pay-line {
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+}
+
+.example .pay-line .hint {
+  font-weight: 400;
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+a.button:not(.secondary) {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.prose code {
+  padding: 0 0.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.prose pre.code {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem;
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.prose pre.code code {
+  padding: 0;
+  background: none;
+  border: 0;
+  font-size: inherit;
+}
+
+.embed-preview iframe {
+  display: block;
+  max-width: 640px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.embed-section h3 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+/* The widget pages that other sites put in a frame. */
+html[data-embed] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f5f6f8;
+  --text: #1a1d21;
+  --muted: #5b6470;
+  --border: #d8dce2;
+  --accent: #1558d6;
+  --highlight: #fff3bf;
+  --error: #c62828;
+}
+
+html[data-embed][data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #15171a;
+  --surface: #1f2226;
+  --text: #e8eaed;
+  --muted: #9aa3ad;
+  --border: #353a41;
+  --accent: #8ab4f8;
+  --highlight: #4a4320;
+  --error: #ef9a9a;
+}
+
+.embed-body {
+  padding: 0.5rem;
+}
+
+.embed .tool {
+  margin: 0;
+}
+
+.embed-scroll {
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.embed-scroll .chart thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+
+.embed-credit {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.embed-credit a {
+  color: inherit;
+}
+
+/* On a phone, a wide table scrolls sideways inside its own box instead of widening the page. */
+@media (max-width: 40rem) {
+  .prose .chart {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .prose .chart th,
+  .prose .chart td {
+    padding: 0.375rem 0.5rem;
+  }
+}
+
 @media print {
   :root {
     --bg: #fff;

@@ -1,0 +1,154 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { formatDecimalHours, formatHM } from '../../engine/time';
+
+// One week at $18.50 an hour under the federal rules: four 9-hour days and a 7.5-hour day.
+const rateCents = 1850;
+const days = [9, 9, 9, 9, 7.5, 0, 0];
+const week = workedExample(RULE_SETS.federal, days, rateCents);
+const totalMinutes = week.minutes.reduce((a, b) => a + b, 0);
+const overtimeRateCents = Math.round(rateCents * 1.5);
+if (totalMinutes !== 2610 || week.pay.total !== 83713) throw new Error('The paycheck example no longer matches the text.');
+
+const faq = [
+  {
+    q: 'Why does my pay stub show 43.50 hours and not 43:30?',
+    a: 'Payroll multiplies hours by a pay rate, so it uses decimal hours. 43.50 hours is 43 hours 30 minutes, because 0.50 of an hour is 30 minutes. A stub showing 43.30 would mean 43 hours 18 minutes.',
+  },
+  {
+    q: 'Why is my overtime on a different paycheck from the hours I worked?',
+    a: 'Overtime earned in a workweek is due on the payday for the pay period in which the workweek ends, and a payroll department can delay it briefly if the exact amount cannot be worked out in time. A workweek that crosses two pay periods can therefore show up on the later paycheck.',
+  },
+  {
+    q: 'Is a difference of a few cents a mistake?',
+    a: 'Usually not. Payroll systems round each pay line to the cent in slightly different ways, so a difference of a cent or two is normal. A difference of whole minutes or hours is worth asking about.',
+  },
+  {
+    q: 'Does gross pay match what I receive?',
+    a: 'No. Gross pay is hours multiplied by your rate, before taxes and other deductions. Your take-home pay will be lower.',
+  },
+  {
+    q: 'Who can I contact if my hours are still wrong?',
+    a: 'Start with your payroll department or manager, with your own record and calculation in hand. If that does not settle it, your state labor office or the U.S. Department of Labor Wage and Hour Division can explain the rules and how to make a complaint.',
+  },
+];
+---
+
+<Guide
+  slug="check-your-paycheck-hours"
+  lede="A paycheck is only as accurate as the hours behind it. Here is a simple way to check yours: add up your own times, turn them into decimals and compare them line by line."
+  sources={[
+    { label: '29 CFR 778.106: Time of payment', url: 'https://www.law.cornell.edu/cfr/text/29/778.106' },
+    { label: '29 CFR 785.48: Time clocks and rounding', url: 'https://www.law.cornell.edu/cfr/text/29/785.48' },
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+    { label: 'U.S. Department of Labor: Wage and Hour Division, wages and the FLSA', url: 'https://www.dol.gov/agencies/whd/flsa' },
+  ]}
+  faq={faq}
+  tools={['/', '/minutes-to-decimal/', '/overtime-calculator/', '/hours-calculator/']}
+>
+  <section>
+    <h2>Step 1: Keep your own record</h2>
+    <p>
+      Write down the time you start, any unpaid break, and the time you finish, as you go. A note on your phone is enough. Your paycheck comes from your
+      employer's records, and your own record is what you compare it with.
+    </p>
+  </section>
+
+  <section>
+    <h2>Step 2: Add up each day</h2>
+    <p>
+      For each day, take the time from start to finish and subtract any unpaid break. Enter the times in the
+      <a href="/">time card calculator</a> and it does this for every day and gives the weekly total. For a single shift, the
+      <a href="/hours-calculator/">hours calculator</a> is quicker.
+    </p>
+  </section>
+
+  <section>
+    <h2>Step 3: Turn minutes into decimals</h2>
+    <p>
+      Pay stubs show hours as decimals. {formatHM(totalMinutes)} hours and minutes is {formatDecimalHours(totalMinutes)} hours on a stub, because the
+      30 minutes is half an hour. Use the <a href="/minutes-to-decimal/">minutes to decimal converter</a> or its chart for any other value.
+    </p>
+  </section>
+
+  <section>
+    <h2>Step 4: Match your week to the pay period</h2>
+    <p>
+      A paycheck covers a pay period, but overtime is counted by the workweek. Find the day your employer's workweek starts and use it as
+      "Week starts on" in the calculator. Overtime for a workweek is due on the payday for the period in which that workweek ends, so hours from the
+      end of one period can appear on the next paycheck. See
+      <a href="/guides/biweekly-vs-semi-monthly-overtime/">biweekly vs semi-monthly pay</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Step 5: Compare hours and pay line by line</h2>
+    <p>
+      Here is a worked example at {formatMoney(rateCents)} an hour under federal rules. The week has four 9-hour days and one 7.5-hour day, which is
+      {formatDecimalHours(totalMinutes)} hours.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Line on the stub</th>
+          <th scope="col">Hours</th>
+          <th scope="col">Rate</th>
+          <th scope="col">Pay</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Regular</th>
+          <td>{formatDecimalHours(week.totals.regular)}</td>
+          <td>{formatMoney(rateCents)}</td>
+          <td>{formatMoney(week.pay.regular)}</td>
+        </tr>
+        <tr>
+          <th scope="row">Overtime (1.5×)</th>
+          <td>{formatDecimalHours(week.totals.overtime)}</td>
+          <td>{formatMoney(overtimeRateCents)}</td>
+          <td>{formatMoney(week.pay.overtime)}</td>
+        </tr>
+        <tr>
+          <th scope="row">Gross pay</th>
+          <td>{formatDecimalHours(totalMinutes)}</td>
+          <td></td>
+          <td><strong>{formatMoney(week.pay.total)}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Check three things: the regular and overtime hours add up to your total, each hours figure multiplied by its rate gives the pay figure, and the
+      pay figures add up to the gross. Overtime in your state may follow different rules, such as daily overtime. See
+      <a href="/guides/daily-vs-weekly-overtime/">daily vs weekly overtime</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common reasons the numbers differ</h2>
+    <ul>
+      <li>An unpaid break was taken off twice, or not taken off at all.</li>
+      <li>
+        Your employer rounds clock times. See <a href="/guides/7-minute-rule/">the 7-minute rule</a>, and compare your own times with the rounded
+        ones.
+      </li>
+      <li>The workweek starts on a different day from the one you assumed.</li>
+      <li>Hours from the end of the last pay period were paid on this paycheck, or yours will be paid on the next.</li>
+      <li>Minutes were written as decimals, so 8:30 became 8.30 instead of 8.50.</li>
+      <li>A bonus or other pay raised the overtime rate. The calculators on this site use one hourly rate and do not include that.</li>
+      <li>Your pay rate changed part-way through the period.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>If the numbers still do not match</h2>
+    <p>
+      Ask your payroll department or manager how the hours were worked out, and share your own calculation. Keep copies of your records and of the
+      pay stubs. If it is not resolved, your state labor office or the U.S. Department of Labor's Wage and Hour Division can explain the rules that
+      apply to you and how to make a complaint.
+    </p>
+  </section>
+</Guide>

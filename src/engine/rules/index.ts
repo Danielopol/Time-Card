@@ -46,6 +46,12 @@ export interface RuleSet {
 
 const HOUR = 60;
 
+/** The Department of Labor's state table. Read directly on 6 October 2026. */
+const DOL_STATE_TABLE: RuleSource = {
+  label: 'U.S. Department of Labor: state minimum wage and premium pay table (updated July 1, 2026)',
+  url: 'https://www.dol.gov/agencies/whd/minimum-wage/state',
+};
+
 export const RULE_SETS = {
   federal: {
     id: 'federal',
@@ -55,7 +61,7 @@ export const RULE_SETS = {
       { label: '29 U.S.C. § 207(a)(1)', url: 'https://www.law.cornell.edu/uscode/text/29/207' },
       { label: 'U.S. Department of Labor: Overtime Pay', url: 'https://www.dol.gov/agencies/whd/overtime' },
     ],
-    lastReviewed: '2026-10-03',
+    lastReviewed: '2026-10-06',
   },
   california: {
     id: 'california',
@@ -73,6 +79,7 @@ export const RULE_SETS = {
     },
     notes: 'Different rules apply to employees on an alternative workweek schedule or under some union contracts.',
     sources: [
+      DOL_STATE_TABLE,
       {
         label: 'California Labor Code § 510',
         url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=510.&lawCode=LAB',
@@ -84,7 +91,7 @@ export const RULE_SETS = {
       },
       { label: 'California Labor Commissioner: Meal Periods', url: 'https://www.dir.ca.gov/dlse/faq_mealperiods.htm' },
     ],
-    lastReviewed: '2026-10-03',
+    lastReviewed: '2026-10-06',
   },
   alaska: {
     id: 'alaska',
@@ -93,10 +100,11 @@ export const RULE_SETS = {
     dailyOvertimeAfter: 8 * HOUR,
     notes: 'Does not apply to employers with fewer than four employees.',
     sources: [
+      DOL_STATE_TABLE,
       { label: 'Alaska Statutes § 23.10.060', url: 'https://www.akleg.gov/basis/statutes.asp#23.10.060' },
       { label: 'Alaska Wage and Hour Pamphlet 100 (October 2025)', url: 'https://labor.alaska.gov/lss/forms/pam100.pdf' },
     ],
-    lastReviewed: '2026-10-03',
+    lastReviewed: '2026-10-06',
   },
   nevada: {
     id: 'nevada',
@@ -104,15 +112,16 @@ export const RULE_SETS = {
     weeklyOvertimeAfter: 40 * HOUR,
     dailyOvertimeAfter: 8 * HOUR,
     notes:
-      'Daily overtime applies only to employees paid less than 1.5 times the state minimum wage, which is less than $18.00 an hour from July 1, 2026. Above that, use Federal. Daily overtime counts hours in the 24 hours after a shift starts, which this calculator does not track across days, and does not apply to an agreed schedule of four 10-hour days.',
+      'Daily overtime applies only to employees paid less than 1.5 times the state minimum wage. With the minimum wage at $12.00 in July 2026, that is less than $18.00 an hour; if you earn more, choose Federal. Daily overtime does not apply to an employee on a schedule of four 10-hour days agreed with the employer. This calculator treats each row of the card as one workday.',
     sources: [
+      DOL_STATE_TABLE,
       { label: 'Nevada Revised Statutes § 608.018', url: 'https://www.leg.state.nv.us/nrs/nrs-608.html#NRS608Sec018' },
       {
         label: 'Nevada Labor Commissioner: 2026 Daily Overtime Bulletin',
         url: 'https://labor.nv.gov/uploadedFiles/labornvgov/content/Employer/26.06.29%20Annual%20Bulletin%20-%20Daily%20Overtime.pdf',
       },
     ],
-    lastReviewed: '2026-10-03',
+    lastReviewed: '2026-10-06',
   },
   colorado: {
     id: 'colorado',
@@ -121,12 +130,13 @@ export const RULE_SETS = {
     dailyOvertimeAfter: 12 * HOUR,
     notes: 'Overtime also applies after 12 consecutive hours, which this calculator does not track across days.',
     sources: [
+      DOL_STATE_TABLE,
       {
         label: 'Colorado COMPS Order #40, Rule 4.1 (7 CCR 1103-1, effective February 1, 2026)',
         url: 'https://cdle.colorado.gov/sites/cdle/files/adopted_2026_comps_order_%2340_7_ccr_1103-1_12.8.25.pdf',
       },
     ],
-    lastReviewed: '2026-10-03',
+    lastReviewed: '2026-10-06',
   },
 } as const satisfies Record<string, RuleSet>;
 
@@ -157,4 +167,10 @@ export function describeRules(rules: RuleSet): string[] {
 
 export function isRuleSetId(value: unknown): value is RuleSetId {
   return typeof value === 'string' && Object.hasOwn(RULE_SETS, value);
+}
+
+/** The rule set named by a `?rules=` query parameter, or null when it is absent or unknown. */
+export function ruleSetFromQuery(search: string): RuleSetId | null {
+  const value = new URLSearchParams(search).get('rules');
+  return isRuleSetId(value) ? value : null;
 }

@@ -1,0 +1,157 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { formatHM, parseTime } from '../../engine/time';
+
+// Both days are worked out by the same code as the time card, so the figures cannot drift.
+const t = (s: string) => parseTime(s)!;
+const days = [
+  { label: 'Monday', in: '7:53 AM', out: '5:07 PM' },
+  { label: 'Tuesday', in: '8:07 AM', out: '4:53 PM' },
+].map((d) => {
+  const punches = { in: t(d.in), lunchOut: null, lunchIn: null, out: t(d.out) };
+  const actual = dayWorkedMinutes(punches, 0);
+  const rounded = dayWorkedMinutes(punches, 15);
+  return { ...d, actual, rounded, diff: rounded - actual };
+});
+if (days[0].diff !== -14 || days[1].diff !== 14) throw new Error('The 7-minute rule example no longer matches the text.');
+const signed = (m: number) => (m > 0 ? `+${m}` : m < 0 ? `−${Math.abs(m)}` : '0') + ' minutes';
+
+const faq = [
+  {
+    q: 'Is the 7-minute rule legal?',
+    a: 'Federal rules accept rounding clock times to the nearest quarter hour, as long as it does not, over time, leave employees unpaid for time they worked. In California a court of appeal has allowed neutral rounding of work time, but rounding is not allowed for meal periods. State rules and your employer\'s policy can differ, so ask your employer or your state labor office if you are unsure.',
+  },
+  {
+    q: 'Is the 7-minute rule applied to clocking in and clocking out?',
+    a: 'Usually yes. Each punch is rounded on its own, so the start time and the end time can each move by up to 7 minutes.',
+  },
+  {
+    q: 'What is 7 minutes as a decimal?',
+    a: '7 minutes is 0.12 hours (7 divided by 60 is 0.1167). Rounded to the quarter hour, the possible values are 0.00, 0.25, 0.50, 0.75 and 1.00 of an hour.',
+  },
+  {
+    q: 'Can my employer round down every time?',
+    a: 'Courts have treated rounding policies as a problem when they systematically underpay employees, for example by only ever rounding down. If you think rounding always costs you time, ask payroll for the policy and compare it with your own record of your times.',
+  },
+  {
+    q: 'Is rounding required?',
+    a: 'No. Federal rules permit it, but many employers pay for the exact minutes worked.',
+  },
+];
+---
+
+<Guide
+  slug="7-minute-rule"
+  lede="The 7-minute rule is a common way to round clock-in and clock-out times to the nearest quarter hour. Federal rules allow rounding, but only if it does not underpay employees over time."
+  sources={[
+    { label: '29 CFR 785.48: Time clocks and rounding', url: 'https://www.law.cornell.edu/cfr/text/29/785.48' },
+    {
+      label: 'Donohue v. AMN Services, LLC, California Supreme Court, No. S253677 (February 25, 2021)',
+      url: 'https://supreme.courts.ca.gov/sites/default/files/supremecourt/default/2022-08/S253677.pdf',
+    },
+  ]}
+  faq={faq}
+  tools={['/', '/minutes-to-decimal/', '/hours-calculator/']}
+>
+  <section>
+    <h2>How the 7-minute rule works</h2>
+    <p>
+      Each clock punch is rounded to the nearest 15 minutes. A punch up to 7 minutes past a quarter hour rounds back to it, and a punch 8 minutes or
+      more past rounds forward to the next one. That is where the name comes from.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Minutes past the hour</th>
+          <th scope="col">Rounds to</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">:00 to :07</th><td>:00</td></tr>
+        <tr><th scope="row">:08 to :22</th><td>:15</td></tr>
+        <tr><th scope="row">:23 to :37</th><td>:30</td></tr>
+        <tr><th scope="row">:38 to :52</th><td>:45</td></tr>
+        <tr><th scope="row">:53 to :59</th><td>The next hour, at :00</td></tr>
+      </tbody>
+    </table>
+    <p>So 8:07 AM becomes 8:00 AM, 8:08 AM becomes 8:15 AM, and 4:53 PM becomes 5:00 PM.</p>
+  </section>
+
+  <section>
+    <h2>Rounding works both ways</h2>
+    <p>
+      Rounding can help or hurt on any one day. Arriving early and clocking in at 7:53 rounds up to 8:00, which costs the employee 7 minutes. Arriving
+      late and clocking in at 8:07 rounds down to 8:00, which gives the employee 7 minutes. The same happens when clocking out.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Day</th>
+          <th scope="col">Clocked in and out</th>
+          <th scope="col">Actual time</th>
+          <th scope="col">Paid time (rounded)</th>
+          <th scope="col">Difference</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          days.map((d) => (
+            <tr>
+              <th scope="row">{d.label}</th>
+              <td>{d.in} to {d.out}</td>
+              <td>{formatHM(d.actual)}</td>
+              <td>{formatHM(d.rounded)}</td>
+              <td>{signed(d.diff)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>Over the two days the differences cancel out. That is the idea behind rounding: it should average out to the time actually worked.</p>
+  </section>
+
+  <section>
+    <h2>What federal law says</h2>
+    <p>
+      The Department of Labor's rule on rounding, 29 CFR 785.48(b), says employers may record starting and stopping times to the nearest 5 minutes, or
+      to the nearest tenth or quarter of an hour. The practice is accepted as long as it is used in a way that does not, over a period of time, leave
+      employees unpaid for all the time they actually worked.
+    </p>
+    <p>
+      The regulation does not use the name "7-minute rule". That is simply the usual way of describing rounding to the nearest quarter hour.
+    </p>
+  </section>
+
+  <section>
+    <h2>When rounding becomes a problem</h2>
+    <p>
+      Rounding is neutral when it sometimes helps the employee and sometimes the employer. Courts have treated it as a problem when a policy
+      systematically underpays employees. A policy that only ever rounds down is the standard example.
+    </p>
+  </section>
+
+  <section>
+    <h2>Rounding in California</h2>
+    <p>
+      A California court of appeal decided in 2012 (<em>See's Candy Shops v. Superior Court</em>) that an employer may use rounded time punches to
+      work out regular and overtime wages if the policy is neutral on its face and in how it is applied.
+    </p>
+    <p>
+      Meal periods are different. In <em>Donohue v. AMN Services</em> (2021), the California Supreme Court held that employers cannot round time
+      punches in the meal period context, because the meal period rules are meant to prevent even minor infringements. A California employer cannot
+      round a 28-minute meal break up to 30. See the guide to <a href="/guides/california-meal-and-rest-breaks/">California meal and rest breaks</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Rounding on the time card calculator</h2>
+    <p>
+      The <a href="/">time card calculator</a> has a Rounding setting: exact minutes, the nearest 5 minutes, the nearest 6 minutes (a tenth of an hour)
+      or the nearest 15 minutes, which is the 7-minute rule. The card rounds every punch before it adds up the hours.
+    </p>
+    <p>
+      With California rules selected, the meal-break notes always use the exact times you typed, because meal periods cannot be rounded there.
+    </p>
+  </section>
+</Guide>

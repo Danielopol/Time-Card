@@ -1,0 +1,36 @@
+---
+import '../styles/global.css';
+import { SITE } from '../site';
+
+interface Props {
+  title: string;
+  /** Page on this site that the credit link points to. */
+  creditHref: string;
+  creditText: string;
+}
+
+const { title, creditHref, creditText } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-embed>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+    <script is:inline>
+      // ?theme=dark switches the widget to a dark background.
+      if (new URLSearchParams(location.search).get('theme') === 'dark') document.documentElement.dataset.theme = 'dark';
+    </script>
+  </head>
+  <body class="embed-body">
+    <div class="embed">
+      <slot />
+      <p class="embed-credit">
+        <a href={new URL(creditHref, SITE.url).href} target="_blank" rel="noopener">{creditText}</a> by{' '}
+        <a href={`${SITE.url}/`} target="_blank" rel="noopener">{SITE.name}</a>
+      </p>
+    </div>
+  </body>
+</html>

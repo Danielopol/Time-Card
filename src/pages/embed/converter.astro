@@ -1,0 +1,8 @@
+---
+import Converter from '../../components/Converter.tsx';
+import Embed from '../../layouts/Embed.astro';
+---
+
+<Embed title="Minutes to decimal hours converter" creditHref="/minutes-to-decimal/" creditText="Minutes to decimal converter">
+  <Converter direction="toDecimal" client:load />
+</Embed>

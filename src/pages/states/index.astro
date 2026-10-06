@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/Base.astro';
+import { RULE_SETS } from '../../engine/rules/index';
+import { guidePath } from '../../guides';
+import { STATES, statePath } from '../../states';
+
+const hours = (minutes: number) => `Over ${minutes / 60} hours`;
+const notes: Record<string, string> = {
+  federal: 'Applies to employees covered by the Fair Labor Standards Act. No daily overtime.',
+  california: 'Alternative workweek schedules and some union contracts follow different rules.',
+  alaska: 'Does not apply to employers with fewer than four employees.',
+  nevada: 'Daily overtime only for employees earning less than 1.5 times the minimum wage, which is $18.00 an hour in July 2026.',
+  colorado: 'Also applies after 12 consecutive hours. Whichever method pays more applies.',
+};
+const rows = Object.values(RULE_SETS).map((rules) => ({
+  id: rules.id,
+  name: rules.name,
+  daily: rules.dailyOvertimeAfter ? hours(rules.dailyOvertimeAfter) : 'None',
+  double: rules.dailyDoubleTimeAfter ? hours(rules.dailyDoubleTimeAfter) : 'None',
+  weekly: hours(rules.weeklyOvertimeAfter),
+  seventh: rules.seventhDayOvertimeUpTo ? `First ${rules.seventhDayOvertimeUpTo / 60} hours at 1.5×, then double time` : 'None',
+  page: STATES.find((s) => s.ruleSet === rules.id),
+}));
+---
+
+<Base
+  title="Overtime Rules by State: Federal, CA, AK, NV and CO"
+  description="Compare overtime rules for federal law, California, Alaska, Nevada and Colorado: daily and weekly thresholds, double time and the seventh-day rule."
+>
+  <div class="prose">
+    <h1>Overtime Rules by State</h1>
+    <p class="lede">
+      Federal law pays overtime after 40 hours in a workweek. A few states add daily overtime or other rules. These are the ones this site covers.
+    </p>
+
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Rules</th>
+          <th scope="col">Daily overtime (1.5×)</th>
+          <th scope="col">Daily double time (2×)</th>
+          <th scope="col">Weekly overtime (1.5×)</th>
+          <th scope="col">Seventh day</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.page ? <a href={statePath(row.page.slug)}>{row.name}</a> : row.name}</th>
+              <td>{row.daily}</td>
+              <td>{row.double}</td>
+              <td>{row.weekly}</td>
+              <td>{row.seventh}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+
+    <ul>
+      {rows.map((row) => <li><strong>{row.name}:</strong> {notes[row.id]}</li>)}
+    </ul>
+
+    <section>
+      <h2>Using these rules</h2>
+      <p>
+        Choose your rules under Overtime rules in the <a href="/">time card calculator</a>, or open the calculator with a state's rules already
+        selected:
+        {
+          STATES.map((state, i) => (
+            <>
+              {i > 0 && ', '}
+              <a href={`/?rules=${state.ruleSet}`}>{state.name}</a>
+            </>
+          ))
+        }.
+      </p>
+    </section>
+
+    <section>
+      <h2>What if your state is not here?</h2>
+      <p>
+        Most states follow the federal rule, but some have their own: other places with daily overtime, seventh-day rules, or a different weekly
+        threshold. The Department of Labor keeps a
+        <a href="https://www.dol.gov/agencies/whd/minimum-wage/state" rel="noopener">table of state minimum wage and premium pay rules</a>. Check it and
+        your state labor office, and see <a href={guidePath('daily-vs-weekly-overtime')}>daily vs weekly overtime</a> for which other places have daily
+        rules. If your state is not covered here, choose Federal in the calculator and treat the result as a starting point, not a final figure.
+      </p>
+    </section>
+  </div>
+</Base>

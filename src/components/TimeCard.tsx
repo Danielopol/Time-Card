@@ -4,7 +4,7 @@ import { cardToCSV } from '../engine/export';
 import { mealBreakFlags } from '../engine/meals';
 import { formatMoney, parseRateCents } from '../engine/money';
 import { ROUNDING_INCREMENTS, type RoundingIncrement } from '../engine/round';
-import { RULE_SETS, type RuleSetId } from '../engine/rules/index';
+import { RULE_SETS, ruleSetFromQuery, type RuleSetId } from '../engine/rules/index';
 import { cardFromFragment, cardToFragment } from '../engine/share';
 import { computeCard, emptyCard, parseCard, type DayPunches, type TimeCard as Card } from '../engine/timecard';
 import { format12, formatDecimalHours, formatHM, parsePunch } from '../engine/time';
@@ -133,8 +133,11 @@ export default function TimeCard() {
       setForm(formFromCard(fromLink));
       setShared(true);
     } else {
+      // A state page links here with ?rules=california, which picks that rule set.
+      const rules = ruleSetFromQuery(location.search);
       const current = parseCard(readStorage(CURRENT_KEY));
-      if (current) setForm(formFromCard(current));
+      if (current) setForm({ ...formFromCard(current), ...(rules ? { ruleSet: rules } : {}) });
+      else if (rules) setForm((f) => ({ ...f, ruleSet: rules }));
     }
     setSaved(readSavedCards());
     setLoaded(true);

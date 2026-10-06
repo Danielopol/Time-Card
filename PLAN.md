@@ -257,3 +257,24 @@ Each state is a config object, so adding one means adding data plus tests, not n
 1. Pick the primary domain (§2) and register it.
 2. Scaffold the Astro project and build the **engine + tests first**, since everything else is UI on top of it.
 3. Ship `/minutes-to-decimal/` (with the chart) and `/decimal-to-minutes/` first, then the time card.
+
+---
+
+## 12. Status: content and growth pages (6 October 2026)
+
+**Built**
+- **State pages** at `/states/{california,alaska,nevada,colorado}/`, plus the `/states/` comparison hub. Each has the rules, worked examples run through the engine, what the calculator does not cover, a FAQ and the sources. Links like `/?rules=california` open the time card with that rule set.
+- **Six guides** at `/guides/`: the 7-minute rule, California meal and rest breaks, daily vs weekly overtime, biweekly vs semi-monthly pay, how to check paycheck hours, and how to fill out a paper time card.
+- **Embeddable widgets** at `/embed/`: the minutes to decimal converter and chart, as framed pages (`/embed/converter/`, `/embed/chart/`) with copy-paste code that includes a credit link. Only those two frames can be embedded by other sites; every other page still sends `X-Frame-Options: DENY` (see `public/_headers`).
+
+**Guides from §7 that were not written, and why.** The SERP-overlap checks showed the same pages ranking for related queries, so separate pages would compete with pages that already exist:
+- "How to convert minutes to decimal for payroll" and "Decimal hours vs hours:minutes" duplicate `/minutes-to-decimal/`.
+- "How to calculate hours worked (with lunch)" duplicates the homepage.
+- "How to calculate overtime pay" duplicates `/overtime-calculator/`.
+- "California overtime rules, with worked examples" is the California state page.
+- "Time card rounding: is it legal?" is covered in the 7-minute rule guide.
+
+**Next**
+- Affiliate cards and a comparison page (§6), once there is traffic to judge them against.
+- Link building for the chart PDF, the blank time card and the embed page (§7).
+- Re-check the rule data each January and July.

@@ -1,14 +1,21 @@
 ---
 import { TOOLS } from '../site';
 
-const others = TOOLS.filter((tool) => tool.href !== Astro.url.pathname);
+interface Props {
+  /** Show only these tools. Leave out to show every other tool. */
+  hrefs?: string[];
+  heading?: string;
+}
+
+const { hrefs, heading = 'More tools' } = Astro.props;
+const shown = TOOLS.filter((tool) => tool.href !== Astro.url.pathname && (!hrefs || hrefs.includes(tool.href)));
 ---
 
-<section class="tool-grid" aria-labelledby="more-tools">
-  <h2 id="more-tools">More tools</h2>
+<section class="tool-grid no-print" aria-labelledby="more-tools">
+  <h2 id="more-tools">{heading}</h2>
   <ul>
     {
-      others.map((tool) => (
+      shown.map((tool) => (
         <li>
           <a href={tool.href}>{tool.label}</a>
           <p>{tool.blurb}</p>

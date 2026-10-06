@@ -1,0 +1,188 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '../../components/Faq.astro';
+import ToolGrid from '../../components/ToolGrid.astro';
+import { WEEKDAYS, workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { formatDecimalHours } from '../../engine/time';
+import { formatDate, guidePath } from '../../guides';
+import { SITE } from '../../site';
+import { STATES, getState, statePath } from '../../states';
+
+export function getStaticPaths() {
+  return STATES.map((state) => ({ params: { state: state.slug }, props: { slug: state.slug } }));
+}
+
+const { slug } = Astro.props;
+const page = getState(slug);
+const rules = RULE_SETS[page.ruleSet];
+const hasDoubleTime = 'dailyDoubleTimeAfter' in rules;
+
+// Every example runs through the same code as the calculators.
+const examples = page.examples.map((example) => {
+  const result = workedExample(rules, example.hours, example.rateCents);
+  const days = example.hours
+    .map((hours, i) => ({ name: WEEKDAYS[i], hours, tiers: result.days[i] }))
+    .filter((d) => d.hours > 0);
+  return { ...example, result, days };
+});
+
+const url = new URL(statePath(page.slug), SITE.url).href;
+const article = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: page.title,
+  description: page.description,
+  datePublished: page.updated,
+  dateModified: page.updated,
+  mainEntityOfPage: url,
+  ...(SITE.owner ? { author: { '@type': 'Person', name: SITE.owner } } : {}),
+  publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+};
+const crumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Overtime by state', item: new URL('/states/', SITE.url).href },
+    { '@type': 'ListItem', position: 2, name: page.name, item: url },
+  ],
+};
+const json = (value: object) => JSON.stringify(value).replace(/</g, '\\u003c');
+const others = STATES.filter((s) => s.slug !== page.slug);
+---
+
+<Base title={page.title} description={page.description}>
+  <nav class="crumbs no-print" aria-label="Breadcrumb">
+    <a href="/states/">Overtime by state</a> <span aria-hidden="true">/</span> <span>{page.name}</span>
+  </nav>
+  <article class="prose">
+    <h1>{page.title}</h1>
+    <p class="lede">{page.lede}</p>
+    <p class="meta">
+      {SITE.owner && <>By {SITE.owner} · </>}Updated {formatDate(page.updated)}. Rules last reviewed {formatDate(rules.lastReviewed)}.
+    </p>
+    <p class="cta no-print">
+      <a class="button" href={`/?rules=${page.ruleSet}`}>Open the time card with {page.name} rules</a>
+      <a class="button secondary" href="/overtime-calculator/">Overtime pay calculator</a>
+    </p>
+
+    <section>
+      <h2>The rules at a glance</h2>
+      <ul>
+        {page.rules.map((rule) => <li>{rule}</li>)}
+      </ul>
+    </section>
+
+    <section>
+      <h2>Worked examples</h2>
+      <p>These weeks are worked out by the same code as the calculators. Hours are decimal hours.</p>
+      {
+        examples.map((example) => (
+          <div class="example">
+            <h3>{example.title}</h3>
+            <p>{example.intro}</p>
+            <table class="chart">
+              <thead>
+                <tr>
+                  <th scope="col">Day</th>
+                  <th scope="col" class="num">Hours</th>
+                  <th scope="col" class="num">Regular</th>
+                  <th scope="col" class="num">Overtime</th>
+                  {hasDoubleTime && <th scope="col" class="num">Double time</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {example.days.map((d) => (
+                  <tr>
+                    <th scope="row">{d.name}</th>
+                    <td class="num">{formatDecimalHours(Math.round(d.hours * 60))}</td>
+                    <td class="num">{formatDecimalHours(d.tiers.regular)}</td>
+                    <td class="num">{formatDecimalHours(d.tiers.overtime)}</td>
+                    {hasDoubleTime && <td class="num">{formatDecimalHours(d.tiers.doubleTime)}</td>}
+                  </tr>
+                ))}
+                <tr>
+                  <th scope="row">Week</th>
+                  <td class="num">{formatDecimalHours(example.result.minutes.reduce((a, b) => a + b, 0))}</td>
+                  <td class="num">{formatDecimalHours(example.result.totals.regular)}</td>
+                  <td class="num">{formatDecimalHours(example.result.totals.overtime)}</td>
+                  {hasDoubleTime && <td class="num">{formatDecimalHours(example.result.totals.doubleTime)}</td>}
+                </tr>
+              </tbody>
+            </table>
+            <p class="pay-line">
+              Gross pay at {formatMoney(example.rateCents)} an hour: {formatMoney(example.result.pay.total)}
+              <span class="hint">
+                {' '}({formatMoney(example.result.pay.regular)} regular
+                {example.result.pay.overtime > 0 && ` + ${formatMoney(example.result.pay.overtime)} overtime`}
+                {example.result.pay.doubleTime > 0 && ` + ${formatMoney(example.result.pay.doubleTime)} double time`})
+              </span>
+            </p>
+          </div>
+        ))
+      }
+    </section>
+
+    {
+      page.extras.map((extra) => (
+        <section>
+          <h2>{extra.heading}</h2>
+          {extra.paragraphs.map((p) => <p>{p}</p>)}
+          {page.slug === 'california' && extra.heading === 'Meal and rest breaks' && (
+            <p>
+              Read the full guide: <a href={guidePath('california-meal-and-rest-breaks')}>California meal and rest break rules</a>.
+            </p>
+          )}
+        </section>
+      ))
+    }
+
+    <section>
+      <h2>What the calculator does not cover</h2>
+      <ul>
+        {page.notCovered.map((item) => <li>{item}</li>)}
+      </ul>
+      <p>
+        The results are estimates and are not legal or payroll advice. For how overtime is counted when you are paid every two weeks, see
+        <a href={guidePath('biweekly-vs-semi-monthly-overtime')}>biweekly vs semi-monthly pay</a>.
+      </p>
+    </section>
+
+    <section class="sources">
+      <h2>Sources</h2>
+      <ul>
+        {
+          rules.sources.map((source) => (
+            <li>
+              <a href={source.url} rel="noopener">{source.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="hint">
+        Rules last reviewed {formatDate(rules.lastReviewed)}. Laws and wage figures change, so check the sources or your state labor office for the
+        current rules.
+      </p>
+    </section>
+
+    <section class="no-print">
+      <h2>Other states</h2>
+      <p>
+        {
+          others.map((s, i) => (
+            <>
+              {i > 0 && ', '}
+              <a href={statePath(s.slug)}>{s.name}</a>
+            </>
+          ))
+        }. See also <a href={guidePath('daily-vs-weekly-overtime')}>daily vs weekly overtime</a> and the
+        <a href="/states/">comparison of all the rules</a>.
+      </p>
+    </section>
+  </article>
+  <Faq items={page.faq} />
+  <ToolGrid hrefs={['/', '/overtime-calculator/', '/hours-calculator/']} heading="Related tools" />
+  <script type="application/ld+json" set:html={json(article)} />
+  <script type="application/ld+json" set:html={json(crumbs)} />
+</Base>

@@ -1,0 +1,129 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../site';
+
+// Heights that fit each widget without a scrollbar inside the frame.
+const converterHeight = 200;
+const chartHeight = 460;
+
+const frame = (path: string, title: string, height: number) =>
+  `<iframe src="${SITE.url}${path}" title="${title}" width="100%" height="${height}" style="border:0;max-width:640px" loading="lazy"></iframe>`;
+const credit = (path: string, text: string) => `<p style="font-size:14px"><a href="${SITE.url}${path}">${text}</a> by <a href="${SITE.url}/">${SITE.name}</a></p>`;
+
+const widgets = [
+  {
+    id: 'converter',
+    name: 'Minutes to decimal converter',
+    text: 'Visitors type hours and minutes and see decimal hours, or the other way round.',
+    path: '/embed/converter/',
+    height: converterHeight,
+    code: `${frame('/embed/converter/', 'Minutes to decimal hours converter', converterHeight)}\n${credit('/minutes-to-decimal/', 'Minutes to decimal converter')}`,
+  },
+  {
+    id: 'chart',
+    name: 'Minutes to decimal chart',
+    text: 'A scrolling chart of every minute from 1 to 60 with its decimal hours, to three decimal places and to the nearest quarter hour.',
+    path: '/embed/chart/',
+    height: chartHeight,
+    code: `${frame('/embed/chart/', 'Minutes to decimal hours chart', chartHeight)}\n${credit('/minutes-to-decimal/', 'Minutes to decimal chart')}`,
+  },
+];
+---
+
+<Base
+  title="Free Minutes to Decimal Converter and Chart to Embed"
+  description="Add a free minutes to decimal converter or chart to your website, intranet or blog with one line of code. No sign-up, no cookies and no tracking."
+>
+  <div class="prose">
+    <h1>Embed a Time Converter on Your Site</h1>
+    <p class="lede">
+      Add a free minutes to decimal converter or chart to your website, intranet or blog. Copy the code, paste it into your page, and it works. There
+      is no sign-up, no account and no cost.
+    </p>
+
+    {
+      widgets.map((widget) => (
+        <section class="embed-section">
+          <h2>{widget.name}</h2>
+          <p>{widget.text}</p>
+          <div class="embed-preview">
+            <iframe src={widget.path} title={widget.name} width="100%" height={widget.height} loading="lazy"></iframe>
+          </div>
+          <h3>Code to copy</h3>
+          <pre class="code"><code id={`code-${widget.id}`}>{widget.code}</code></pre>
+          <p>
+            <button type="button" data-copy={`code-${widget.id}`}>Copy code</button>
+          </p>
+        </section>
+      ))
+    }
+
+    <section>
+      <h2>Options</h2>
+      <ul>
+        <li><strong>Dark background.</strong> Add <code>?theme=dark</code> to the end of the address in <code>src</code>, for a site with a dark design.</li>
+        <li><strong>Size.</strong> Change <code>width</code> and <code>height</code> to suit your page. The converter fits in a frame about 200 pixels high, and the chart scrolls inside its frame.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Please keep the link</h2>
+      <p>
+        The widgets are free to use. In return, please keep the link under the frame that is included in the code. It tells your visitors where the
+        tool comes from and helps others find it.
+      </p>
+    </section>
+
+    <section>
+      <h2>Privacy</h2>
+      <p>
+        The widgets do not set cookies, do not store anything in the visitor's browser and do not run analytics. What a visitor types is worked out
+        in their own browser and is not sent to us. Like any website, our hosting provider sees the request when the frame loads. See the
+        <a href="/privacy/">privacy policy</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Need something different?</h2>
+      <p>
+        If you want another tool as a widget, such as the hours calculator or the military time converter, email
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+    </section>
+  </div>
+  <script is:inline>
+    document.querySelectorAll('[data-copy]').forEach(function (button) {
+      var label = button.textContent;
+      button.addEventListener('click', function () {
+        var code = document.getElementById(button.dataset.copy);
+        var done = function (text) {
+          button.textContent = text;
+          setTimeout(function () {
+            button.textContent = label;
+          }, 2500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code.textContent).then(
+            function () {
+              done('Copied');
+            },
+            function () {
+              selectText(code);
+              done('Press Ctrl+C to copy');
+            },
+          );
+        } else {
+          selectText(code);
+          done('Press Ctrl+C to copy');
+        }
+      });
+    });
+    function selectText(node) {
+      var range = document.createRange();
+      range.selectNodeContents(node);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  </script>
+</Base>
