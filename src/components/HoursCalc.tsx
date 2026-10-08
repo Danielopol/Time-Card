@@ -1,5 +1,7 @@
 import { useState } from 'preact/hooks';
 import { format12, formatDecimalHours, formatHM, minutesBetween, parseDuration, parsePunch, parseTime } from '../engine/time';
+import { trackWindow } from '../engine/track';
+import { Bars, Scale } from './Track';
 
 function plural(n: number, unit: string): string {
   return `${n} ${unit}${n === 1 ? '' : 's'}`;
@@ -19,6 +21,8 @@ export default function HoursCalc() {
   const breakTooLong = span !== null && breakMinutes !== null && breakMinutes > span;
   const total = span !== null && breakMinutes !== null && !breakTooLong ? span - breakMinutes : null;
   const overnight = startTime !== null && endTime !== null && endTime < startTime;
+  const shift = span === null ? null : { start: startTime!, end: startTime! + span };
+  const scaleWindow = trackWindow([shift]);
 
   return (
     <div class="tool calc">
@@ -64,6 +68,11 @@ export default function HoursCalc() {
         Type times as <kbd>9</kbd>, <kbd>830</kbd>, <kbd>8:30a</kbd>, <kbd>5p</kbd> or <kbd>17:30</kbd>. Enter the break in minutes, or as <kbd>0:45</kbd> or <kbd>1h</kbd>.
       </p>
 
+      <div class="shift-track">
+        <Scale window={scaleWindow} />
+        <Bars window={scaleWindow} segments={shift ? [{ from: shift.start, to: shift.end, premium: false }] : []} />
+      </div>
+
       <div class="result" aria-live="polite">
         {total !== null ? (
           <>
@@ -97,7 +106,10 @@ export default function HoursCalc() {
         ) : breakTooLong ? (
           <p class="hint">The break is longer than the time between the start and the end.</p>
         ) : (
-          <p class="hint">Enter a start time and an end time.</p>
+          <>
+            <p class="answer empty">--.--</p>
+            <p class="hint">Enter a start time and an end time.</p>
+          </>
         )}
       </div>
     </div>

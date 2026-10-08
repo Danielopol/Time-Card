@@ -3,6 +3,7 @@ import { formatMoney, parseRateCents } from '../engine/money';
 import { grossPayCents } from '../engine/overtime';
 import { RULE_SETS, describeRules, type RuleSetId } from '../engine/rules/index';
 import { formatDecimalHours, parseHours } from '../engine/time';
+import { Gauge } from './Track';
 
 function parseMultiplier(input: string): number | null {
   const s = input.trim();
@@ -36,6 +37,9 @@ export default function OvertimeCalc() {
     ? grossPayCents({ regular: regularMinutes, overtime: overtimeMinutes, doubleTime: doubleTimeMinutes }, rateCents, overtimeMultiplier)
     : null;
   const invalid = (bad: boolean) => (bad ? 'true' : undefined);
+  const premiumMinutes = (overtimeMinutes ?? 0) + (doubleTimeMinutes ?? 0);
+  const gaugeMax = Math.max(60 * 60, Math.ceil(((regularMinutes ?? 0) + premiumMinutes) / 600) * 600);
+  const overtimeLine = RULE_SETS[ruleSet].weeklyOvertimeAfter;
 
   return (
     <div class="tool calc">
@@ -69,6 +73,18 @@ export default function OvertimeCalc() {
             <p class="answer">
               <strong>Total pay {formatMoney(pay.total)}</strong>
             </p>
+            <Gauge
+              max={gaugeMax}
+              step={300}
+              value={regularMinutes}
+              premium={premiumMinutes}
+              mark={overtimeLine}
+              labels={[
+                { at: 0, text: '0' },
+                { at: overtimeLine, text: `${overtimeLine / 60} h overtime line` },
+                { at: gaugeMax, text: String(gaugeMax / 60) },
+              ]}
+            />
             <dl>
               <div>
                 <dt>Regular pay</dt>
@@ -95,7 +111,10 @@ export default function OvertimeCalc() {
             </dl>
           </>
         ) : (
-          <p class="hint">Enter your hourly rate and hours.</p>
+          <>
+            <p class="answer empty">$--.--</p>
+            <p class="hint">Enter your hourly rate and hours.</p>
+          </>
         )}
       </div>
 

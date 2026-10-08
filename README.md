@@ -8,6 +8,7 @@ Static Astro site with Preact islands. All calculation lives in `src/engine` as 
 npm run dev      # dev server on http://localhost:4321
 npm test         # engine tests
 npm run pdf      # regenerate the chart PDFs in public/
+npm run fonts    # cut the two typefaces down to the characters the site uses
 npm run build    # regenerate the PDFs, then build the static site in dist/
 ```
 
@@ -18,6 +19,10 @@ The site runs on Cloudflare as the Worker `time-card`, connected to this reposit
 Cloudflare build settings: build command `npm run build`, deploy command `npx wrangler deploy`. The Node version comes from `.node-version`.
 
 Pass `noindex` to `Base` on any page that should stay out of search results.
+
+## Fonts
+
+Words are set in Barlow Semi Condensed and numbers in B612, both under the SIL Open Font License. The files in `src/fonts/` hold only the keyboard characters plus every other character found in `src/`. After adding text with a new symbol or accented letter, run `npm run fonts` and commit the result. A character missing from the files still shows, in the visitor's system font.
 
 ## Content
 

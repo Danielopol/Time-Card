@@ -1,27 +1,82 @@
+/* Cut down to the characters the site uses by `npm run fonts`. */
+@font-face {
+  font-family: 'Barlow Semi Condensed';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/barlow-semi-condensed-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Barlow Semi Condensed';
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/barlow-semi-condensed-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'B612';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/b612-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'B612';
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/b612-700.woff2') format('woff2');
+}
+
+/*
+  Time Instrument. Words are set in Barlow Semi Condensed and every number in B612.
+  The signal colour is kept for the answer and for overtime. The "panel" colours are the
+  readout that holds a result: dark on a light page, light on a dark one.
+*/
 :root {
-  --bg: #ffffff;
-  --surface: #f5f6f8;
-  --text: #1a1d21;
-  --muted: #5b6470;
-  --border: #d8dce2;
-  --accent: #1558d6;
-  --highlight: #fff3bf;
-  --error: #c62828;
-  --radius: 8px;
-  --width: 60rem;
+  --bg: #e9ebec;
+  --surface: #f6f7f7;
+  --field: #ffffff;
+  --text: #15181b;
+  --muted: #525a60;
+  --border: #aeb4b8;
+  --hair: #d5d9db;
+  --tick: #c3c8cb;
+  --signal: #f04e12;
+  --signal-text: #b5380a;
+  --on-signal: #15181b;
+  --panel: #15181b;
+  --panel-text: #eef0f1;
+  --panel-muted: #a9b0b5;
+  --panel-line: #5b636a;
+  --panel-signal: #ff6a2b;
+  --highlight: #ffe0d3;
+  --error: #b5380a;
+  --radius: 2px;
+  --width: 75rem;
+  --sans: 'Barlow Semi Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --mono: 'B612', ui-monospace, 'Cascadia Mono', Consolas, monospace;
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #15171a;
-    --surface: #1f2226;
-    --text: #e8eaed;
-    --muted: #9aa3ad;
-    --border: #353a41;
-    --accent: #8ab4f8;
-    --highlight: #4a4320;
-    --error: #ef9a9a;
+    --bg: #101315;
+    --surface: #1a1e21;
+    --field: #101315;
+    --text: #eef0f1;
+    --muted: #a9b0b5;
+    --border: #4a5157;
+    --hair: #2b3035;
+    --tick: #3d444a;
+    --signal: #ff6a2b;
+    --signal-text: #ff6a2b;
+    --panel: #eef0f1;
+    --panel-text: #15181b;
+    --panel-muted: #525a60;
+    --panel-line: #aeb4b8;
+    --panel-signal: #d8430b;
+    --highlight: #3a2318;
+    --error: #ff6a2b;
   }
 }
 
@@ -35,71 +90,430 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 1rem/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font: 1.0625rem/1.5 var(--sans);
 }
 
 a {
-  color: var(--accent);
+  color: var(--text);
 }
 
-.site-header,
-main,
-.site-footer {
-  max-width: var(--width);
-  margin: 0 auto;
-  padding: 1rem;
+a:hover {
+  color: var(--signal-text);
 }
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 1px;
+}
+
+/* Small capitals used for field labels, column heads and captions. */
+.cap,
+.tagline,
+.converter label,
+.calc label,
+.timecard .settings label,
+.punches thead th,
+.chart thead th,
+.totals dt,
+.calc dt {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+/* Header */
 
 .site-header {
+  border-bottom: 1px solid var(--text);
+}
+
+.site-header .bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.5rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  max-width: var(--width);
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
 }
 
 .brand {
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: var(--text);
-  text-decoration: none;
-}
-
-.site-header ul {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.9375rem;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text);
+  text-decoration: none;
 }
 
-.site-header a[aria-current='page'] {
+.brand:hover {
   color: var(--text);
-  font-weight: 600;
+}
+
+/* The mark: ruler ticks that read as an H, underlined by the total. */
+.mark {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 28px;
+  padding-bottom: 6px;
+}
+
+.mark i {
+  width: 2px;
+  height: 9px;
+  background: currentColor;
+}
+
+.mark i:first-child,
+.mark i:last-child {
+  width: 3px;
+  height: 22px;
+}
+
+.mark i:nth-child(3) {
+  height: 13px;
+}
+
+.mark::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--signal);
+}
+
+.wordmark {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.wordmark span {
+  font-weight: 400;
+}
+
+.tagline {
+  margin: 0;
+}
+
+.rack ul {
+  display: flex;
+  max-width: var(--width);
+  margin: 0 auto;
+  padding: 0 1rem;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.rack li {
+  flex: 1 0 auto;
+}
+
+.rack li:last-child {
+  border-right: 1px solid var(--border);
+}
+
+.rack a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem 0.625rem;
+  border-top: 4px solid transparent;
+  border-left: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.9375rem;
+  letter-spacing: 0.04em;
   text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rack a:hover {
+  border-top-color: var(--text);
+}
+
+.rack a[aria-current='page'] {
+  border-top-color: var(--signal);
+  font-weight: 700;
+}
+
+.no {
+  color: var(--muted);
+  font: 400 0.6875rem var(--mono);
+}
+
+/* Page */
+
+main {
+  max-width: var(--width);
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
 }
 
 h1 {
-  margin: 1rem 0 0.5rem;
-  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin: 0.75rem 0 0.25rem;
+  font-size: clamp(1.625rem, 4vw, 2.125rem);
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.375rem;
+  letter-spacing: 0.03em;
   line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .lede {
   margin-top: 0;
   color: var(--muted);
-  font-size: 1.125rem;
 }
 
 .tool {
-  margin: 1.5rem 0;
+  margin: 1.25rem 0;
   padding: 1.25rem;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--text);
   border-radius: var(--radius);
 }
+
+/* Fields and buttons */
+
+input,
+button,
+select {
+  font: inherit;
+}
+
+input[type='text'],
+select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.625rem;
+  background: var(--field);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+input[type='text'] {
+  font: 400 1rem var(--mono);
+}
+
+select {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+input[type='checkbox'] {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--signal);
+}
+
+/* A wrong entry is hatched and heavily outlined, so it does not rely on colour. */
+[aria-invalid='true'] {
+  background: repeating-linear-gradient(135deg, var(--field) 0 6px, var(--highlight) 6px 8px) !important;
+  border: 2px solid var(--text) !important;
+}
+
+button,
+a.button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--signal);
+  color: var(--on-signal);
+  border: 1px solid var(--signal);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+a.button {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+a.button:hover {
+  color: var(--on-signal);
+}
+
+button.secondary,
+a.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--text);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+kbd {
+  padding: 0 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: 0.8125em var(--mono);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.print-only {
+  display: none;
+}
+
+/* Scales, tracks and gauges */
+
+.scale {
+  position: relative;
+  height: 1.375rem;
+  border-bottom: 1px solid var(--text);
+  color: var(--muted);
+  font: 400 0.625rem var(--mono);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.scale span {
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 7px;
+  transform: translateX(-50%);
+}
+
+.scale span::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  height: 5px;
+  background: var(--text);
+}
+
+.track {
+  position: relative;
+  height: 2.5rem;
+  background: repeating-linear-gradient(90deg, var(--tick) 0 1px, transparent 1px var(--step));
+}
+
+.track span {
+  position: absolute;
+  top: 0.75rem;
+  height: 1rem;
+  background: var(--text);
+}
+
+.track .premium {
+  background: var(--signal);
+}
+
+.gauge {
+  --g-fg: var(--text);
+  --g-tick: var(--tick);
+  --g-muted: var(--muted);
+  --g-signal: var(--signal);
+  --g-note: var(--signal-text);
+  margin-top: 0.75rem;
+}
+
+.readout .gauge,
+.result .gauge {
+  --g-fg: var(--panel-text);
+  --g-tick: var(--panel-line);
+  --g-muted: var(--panel-muted);
+  --g-signal: var(--panel-signal);
+  --g-note: var(--panel-signal);
+}
+
+.gauge-bar {
+  position: relative;
+  height: 1.75rem;
+  border-bottom: 1px solid var(--g-fg);
+  background: repeating-linear-gradient(90deg, var(--g-tick) 0 1px, transparent 1px var(--step));
+}
+
+.gauge-bar .fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 0.75rem;
+  background: var(--g-fg);
+}
+
+.gauge-bar .fill.premium {
+  background: var(--g-signal);
+}
+
+.gauge-bar .marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--g-signal);
+}
+
+.gauge-labels {
+  position: relative;
+  height: 1.125rem;
+  margin-top: 0.25rem;
+  color: var(--g-muted);
+  font: 400 0.6875rem var(--mono);
+}
+
+.gauge-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.gauge-labels .first {
+  transform: none;
+}
+
+.gauge-labels .last {
+  transform: translateX(-100%);
+}
+
+.gauge-note {
+  margin: 0.25rem 0 0;
+  color: var(--g-note);
+  font: 700 0.8125rem var(--mono);
+}
+
+/* Converters */
 
 .converter {
   display: flex;
@@ -110,40 +524,120 @@ h1 {
 
 .converter label {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.375rem;
   flex: 1 1 12rem;
-  font-weight: 600;
+}
+
+.converter input[type='text'] {
+  min-height: 3.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .converter .equals {
-  padding-bottom: 0.5rem;
-  font-size: 1.5rem;
+  padding-bottom: 0.625rem;
+  color: var(--signal-text);
+  font: 700 1.75rem var(--mono);
 }
 
-input,
-button {
-  font: inherit;
+.converter button {
+  min-height: 3.5rem;
 }
 
-input[type='text'] {
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
+.converter .gauge {
+  flex-basis: 100%;
+  margin-top: 0;
+}
+
+.military .hint {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* Calculators with a result panel */
+
+.calc .fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+}
+
+.calc label {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.calc .hint {
+  margin: 0.5rem 0;
+}
+
+.shift-track {
+  margin-top: 1rem;
+}
+
+.calc .result {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: var(--panel);
+  color: var(--panel-text);
   border-radius: var(--radius);
-  font-size: 1.25rem;
-  font-variant-numeric: tabular-nums;
 }
 
-button {
-  padding: 0.5rem 1rem;
-  background: var(--accent);
-  color: var(--bg);
-  border: 0;
-  border-radius: var(--radius);
-  cursor: pointer;
+.calc .result .hint {
+  color: var(--panel-muted);
 }
+
+.calc .result .hint:last-child {
+  margin-bottom: 0;
+}
+
+.calc .answer {
+  margin: 0 0 0.75rem;
+  color: var(--panel-signal);
+  font: 700 clamp(1.625rem, 6vw, 2.75rem) / 1.1 var(--mono);
+  letter-spacing: -0.03em;
+}
+
+.calc .answer strong {
+  font-weight: inherit;
+}
+
+.answer.empty,
+.readout-total.empty {
+  color: var(--panel-line);
+}
+
+.calc dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin: 1rem 0 0;
+}
+
+.calc dt {
+  color: var(--panel-muted);
+}
+
+.calc dd {
+  margin: 0;
+  font: 400 1.125rem var(--mono);
+}
+
+.calc .rules {
+  margin-top: 1.25rem;
+}
+
+.calc .rules select {
+  max-width: 16rem;
+}
+
+.calc .rules ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 1rem;
+}
+
+/* Charts */
 
 .chart {
   width: 100%;
@@ -162,12 +656,16 @@ button {
 .chart th,
 .chart td {
   padding: 0.375rem 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hair);
   text-align: left;
 }
 
+.chart thead th {
+  border-bottom-color: var(--text);
+}
+
 .chart tbody th {
-  font-weight: 400;
+  font: 700 0.9375rem var(--mono);
 }
 
 .chart tbody th a {
@@ -180,112 +678,105 @@ button {
   scroll-margin-top: 4rem;
 }
 
+.chart td.num,
+.chart th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Tool list: every tool with a sample of time in and answer out. */
+
+.tool-grid {
+  margin-top: 3rem;
+}
+
+.tool-grid h2 {
+  margin: 0;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--text);
+}
+
 .tool-grid ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: 1rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .tool-grid li {
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 2fr);
+  gap: 0.25rem 1.25rem;
+  align-items: baseline;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--tick);
+}
+
+.tool-grid a {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/* The whole row is the link target. */
+.tool-grid a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.tool-grid .sample {
+  font: 400 0.875rem var(--mono);
+}
+
+.tool-grid .sample strong {
+  color: var(--signal-text);
+  font-weight: 400;
 }
 
 .tool-grid p {
-  margin: 0.25rem 0 0;
+  margin: 0;
   color: var(--muted);
-  font-size: 0.9375rem;
 }
+
+/* Footer */
 
 .site-footer {
-  margin-top: 2rem;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.calc .fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 1rem;
-}
-
-.calc label {
-  display: grid;
-  gap: 0.25rem;
-  font-weight: 600;
-}
-
-.calc .hint {
-  margin: 0.5rem 0;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.calc .result {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: var(--bg);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-}
-
-.calc .result .hint:last-child {
-  margin-bottom: 0;
-}
-
-.calc .answer {
-  margin: 0 0 0.75rem;
-  font-size: 1.5rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.calc dl {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 2rem;
-  margin: 0;
-}
-
-.calc dt {
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+  max-width: var(--width);
+  margin: 1rem auto 0;
+  padding: 1rem 1rem 2rem;
   color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.calc dd {
-  margin: 0;
-  font-size: 1.125rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.calc .rules {
-  margin-top: 1rem;
-}
-
-.calc .rules select {
-  max-width: 16rem;
-}
-
-.calc .rules ul {
-  margin: 0.5rem 0 0;
-  padding-left: 1.25rem;
   font-size: 0.9375rem;
 }
 
-.military .hint {
+.site-footer::before {
+  content: '';
   flex-basis: 100%;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.9375rem;
+  margin-bottom: 0.75rem;
+  border-top: 1px solid var(--text);
 }
 
-.print-only {
-  display: none;
+.site-footer p {
+  margin: 0;
 }
+
+.site-footer a {
+  color: inherit;
+}
+
+/* Long-form pages */
 
 .prose {
   max-width: 46rem;
@@ -294,12 +785,6 @@ button {
 .prose section,
 main > section {
   margin-top: 2rem;
-}
-
-h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.375rem;
-  line-height: 1.25;
 }
 
 .prose p,
@@ -313,7 +798,8 @@ h2 {
 }
 
 .prose .chart {
-  margin-bottom: 1rem;
+  margin: 0.75rem 0 1rem;
+  font-size: 1rem;
 }
 
 h2.spaced {
@@ -326,312 +812,19 @@ h2.spaced {
   list-style: none;
 }
 
-.site-footer a {
-  color: inherit;
-}
-
 .faq {
   margin-top: 2rem;
 }
 
 .faq h3 {
   margin: 1.25rem 0 0.25rem;
-  font-size: 1.0625rem;
-}
-
-.tool-grid {
-  margin-top: 2.5rem;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
-select {
-  width: 100%;
-  padding: 0.5rem 0.625rem;
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font: inherit;
-}
-
-a.button {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius);
-  text-decoration: none;
-}
-
-button.secondary,
-a.button.secondary {
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-.chart-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-[aria-invalid='true'] {
-  border-color: var(--error) !important;
-  outline: 1px solid var(--error);
-}
-
-.timecard input[type='text'] {
-  padding: 0.5rem 0.625rem;
-  font-size: 1rem;
-}
-
-.timecard .settings {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  align-items: end;
-  gap: 0.75rem 1rem;
-  margin: 0 0 1rem;
-  padding: 0;
-  border: 0;
-}
-
-.timecard .settings label {
-  display: grid;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.timecard .settings .wide {
-  grid-column: span 2;
-}
-
-.timecard .settings .check {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.timecard .notice,
-.timecard .rule-note {
-  margin: 0 0 1rem;
-  padding: 0.625rem 0.75rem;
-  background: var(--highlight);
-  border-radius: var(--radius);
-  font-size: 0.9375rem;
-}
-
-.punches {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.punches th,
-.punches td {
-  padding: 0.25rem 0.375rem;
-  text-align: left;
-}
-
-.punches thead th {
-  font-size: 0.8125rem;
-  color: var(--muted);
-}
-
-.punches tbody th {
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.punches .week-label th {
-  padding-top: 0.75rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.punches .flags td {
-  padding-top: 0;
-}
-
-.punches .flags ul {
-  margin: 0 0 0.375rem;
-  padding: 0;
-  list-style: none;
-  font-size: 0.875rem;
-}
-
-.punches .flags li {
-  padding: 0.375rem 0.625rem;
-  border-left: 3px solid var(--border);
-  color: var(--muted);
-}
-
-.punches .flags li.warning {
-  border-left-color: var(--error);
-  color: var(--text);
-}
-
-.punches .day-total {
-  min-width: 6.5rem;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.punches .day-total span {
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.timecard .hint,
-.timecard .status {
-  margin: 0.5rem 0;
-  color: var(--muted);
-  font-size: 0.875rem;
-}
-
-.timecard .status:empty {
-  display: none;
-}
-
-kbd {
-  padding: 0 0.25rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font: inherit;
-  font-variant-numeric: tabular-nums;
-}
-
-.totals {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0.75rem;
-  margin: 1rem 0;
-}
-
-.totals > div {
-  padding: 0.75rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.totals dt {
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-.totals dd {
-  margin: 0;
   font-size: 1.125rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.totals dd.pay {
-  font-size: 0.9375rem;
-  font-weight: 400;
-}
-
-.totals .grand {
-  border-color: var(--accent);
-}
-
-.totals .grand dd.pay {
-  font-weight: 600;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.saved h2 {
-  margin: 1.25rem 0 0.5rem;
-  font-size: 1rem;
-}
-
-.saved ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.saved li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0;
-  border-top: 1px solid var(--border);
-}
-
-.saved li span {
-  flex: 1;
-  overflow-wrap: anywhere;
-}
-
-.saved button {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-}
-
-/* On a phone each day becomes a block: the day and its total, then the four punches. */
-@media (max-width: 40rem) {
-  .timecard .settings .wide {
-    grid-column: auto;
-  }
-
-  .punches thead {
-    display: none;
-  }
-
-  .punches tbody tr:not(.week-label):not(.flags) {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.25rem;
-    padding: 0.5rem 0;
-    border-top: 1px solid var(--border);
-  }
-
-  .punches tbody th {
-    grid-column: 1 / 3;
-    grid-row: 1;
-  }
-
-  .punches .day-total {
-    grid-column: 3 / 5;
-    grid-row: 1;
-    text-align: right;
-  }
-
-  .punches td {
-    padding: 0;
-  }
-
-  .punches td input[type='text'] {
-    padding: 0.5rem 0.25rem;
-    font-size: 0.8125rem;
-    text-align: center;
-  }
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 0.875rem;
 }
 
 .crumbs {
   margin: 1rem 0 0;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .crumbs a {
@@ -641,7 +834,7 @@ kbd {
 .meta {
   margin: -0.25rem 0 1rem;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 .guide-list {
@@ -652,12 +845,12 @@ kbd {
 
 .guide-list li {
   padding: 1rem 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--tick);
 }
 
 .guide-list a {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 .guide-list p {
@@ -670,18 +863,7 @@ kbd {
 
 .sources ul {
   padding-left: 1.25rem;
-  font-size: 0.9375rem;
-}
-
-.prose .chart {
-  margin: 0.75rem 0 1rem;
-  font-size: 0.9375rem;
-}
-
-.chart td.num,
-.chart th.num {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
 }
 
 .example {
@@ -690,12 +872,12 @@ kbd {
 
 .example h3 {
   margin: 0 0 0.25rem;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
 }
 
 .example .pay-line {
   margin: 0.5rem 0 0;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .example .pay-line .hint {
@@ -709,17 +891,12 @@ kbd {
   margin: 1rem 0;
 }
 
-a.button:not(.secondary) {
-  background: var(--accent);
-  color: var(--bg);
-}
-
 .prose code {
   padding: 0 0.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 0.9em;
+  border-radius: var(--radius);
+  font: 0.8125em var(--mono);
 }
 
 .prose pre.code {
@@ -742,6 +919,519 @@ a.button:not(.secondary) {
   font-size: inherit;
 }
 
+/* Time card */
+
+.timecard .settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  align-items: end;
+  gap: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+}
+
+.timecard .settings label {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.timecard .settings .wide {
+  grid-column: span 2;
+}
+
+.timecard .settings .check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+}
+
+.timecard .notice,
+.timecard .rule-note {
+  margin: 0 0 1rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--highlight);
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+
+.punches {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.punches th,
+.punches td {
+  padding: 0.25rem 0.25rem;
+  text-align: left;
+}
+
+.punches tbody th {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.punches td input[type='text'] {
+  padding: 0.5rem 0.125rem;
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.punches .week-label th {
+  padding-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.punches .flags td {
+  padding-top: 0;
+}
+
+.punches .flags ul {
+  margin: 0 0 0.375rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.punches .flags li {
+  position: relative;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  color: var(--muted);
+}
+
+.punches .flags li::before {
+  content: '';
+  position: absolute;
+  top: 0.75em;
+  left: 0.125rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--border);
+}
+
+.punches .flags li.warning {
+  color: var(--text);
+}
+
+.punches .flags li.warning::before {
+  background: var(--signal);
+}
+
+.punches .day-total {
+  white-space: nowrap;
+}
+
+.timecard .hint,
+.timecard .status {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+}
+
+.timecard .status:empty {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.saved h2 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.saved ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--tick);
+}
+
+.saved li span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.settings-summary,
+.tc-bar {
+  display: none;
+}
+
+@media screen {
+  .tc-layout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin: 1.25rem 0;
+  }
+
+  .tc-main {
+    flex: 999 1 34rem;
+    min-width: 0;
+  }
+
+  .tc-main .tool {
+    margin: 0;
+  }
+
+  .punches {
+    table-layout: fixed;
+  }
+
+  .punches thead th {
+    padding-bottom: 0.375rem;
+    vertical-align: bottom;
+  }
+
+  .punches thead .day {
+    width: 3.25rem;
+  }
+
+  .punches thead .punch {
+    width: 5.25rem;
+    text-align: center;
+  }
+
+  .punches thead .day-total {
+    width: 5.5rem;
+    text-align: right;
+  }
+
+  .punches tbody tr:not(.week-label):not(.flags) > * {
+    border-top: 1px solid var(--hair);
+  }
+
+  .punches tbody th {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* The full day name stays for screen readers and for print. */
+  .punches .day-full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .punches tbody .day-total {
+    line-height: 1.15;
+    text-align: right;
+  }
+
+  .punches .day-total strong {
+    display: block;
+    font: 700 1.125rem var(--mono);
+  }
+
+  .punches .day-total span {
+    color: var(--muted);
+    font: 400 0.6875rem var(--mono);
+  }
+
+  .punches .day-total .empty {
+    color: var(--border);
+    font-size: 1.125rem;
+  }
+
+  /* The readout: the answer, the week against the overtime line, then the pay lines. */
+  .readout {
+    position: sticky;
+    top: 1rem;
+    flex: 1 1 18rem;
+    min-width: 0;
+    padding: 1.25rem;
+    background: var(--panel);
+    color: var(--panel-text);
+    border-radius: var(--radius);
+  }
+
+  .readout p {
+    margin: 0;
+  }
+
+  .readout .cap,
+  .readout .hint,
+  .readout .status,
+  .readout dt {
+    color: var(--panel-muted);
+  }
+
+  .readout .hint,
+  .readout .status {
+    margin-top: 0.75rem;
+  }
+
+  .readout-total {
+    padding: 0.5rem 0 0.25rem;
+    color: var(--panel-signal);
+    font: 700 clamp(3.25rem, 7vw, 4.75rem) / 1 var(--mono);
+    letter-spacing: -0.04em;
+  }
+
+  .readout-hm {
+    font: 400 1.0625rem var(--mono);
+  }
+
+  .readout .gauge + .cap {
+    margin-top: 1rem;
+  }
+
+  .totals {
+    margin: 1.25rem 0 0;
+  }
+
+  .totals > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 1rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--panel-line);
+  }
+
+  .totals dd {
+    margin: 0;
+    font: 400 0.9375rem var(--mono);
+    text-align: right;
+  }
+
+  .totals dd.pay {
+    grid-column: 2;
+    color: var(--panel-muted);
+    font-size: 0.8125rem;
+  }
+
+  .totals .premium dd:not(.pay) {
+    color: var(--panel-signal);
+    font-weight: 700;
+  }
+
+  .totals .grand {
+    border-top-color: var(--panel-text);
+  }
+
+  /* The bookkeeper's double rule: what follows is the total. */
+  .totals .gross {
+    border-top: 3px double var(--panel-text);
+  }
+
+  .totals .gross dt {
+    color: var(--panel-text);
+  }
+
+  .totals .gross dd {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .readout .actions {
+    margin-top: 1.25rem;
+  }
+
+  .readout .actions button {
+    flex: 1 1 7rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+  }
+
+  .readout .actions button:first-child {
+    flex-basis: 100%;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+  }
+
+  .readout button.secondary {
+    color: var(--panel-text);
+    border-color: var(--panel-line);
+  }
+
+  .readout > input[type='text'] {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* On a phone each day becomes a block: the day, its track and its total, then the four punches. */
+@media screen and (max-width: 40rem) {
+  .tagline {
+    display: none;
+  }
+
+  .tool {
+    padding: 0.75rem;
+  }
+
+  .tool-grid li {
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .tool-grid .sample,
+  .tool-grid p {
+    grid-column: 2;
+  }
+
+  /* The settings fold into one sentence, with the fields a tap away. */
+  .settings-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--field);
+    color: var(--text);
+    border-color: var(--border);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-align: left;
+    text-transform: none;
+  }
+
+  .settings-summary strong {
+    color: var(--signal-text);
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .timecard .settings.is-folded {
+    display: none;
+  }
+
+  .timecard .settings .wide {
+    grid-column: auto;
+  }
+
+  .punches thead {
+    display: none;
+  }
+
+  .punches tbody tr:not(.week-label):not(.flags) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.375rem;
+    align-items: center;
+    padding: 0.5rem 0 0.75rem;
+    border-top: 1px solid var(--hair);
+  }
+
+  .punches tbody tr:not(.week-label):not(.flags) > * {
+    padding: 0;
+    border-top: 0;
+  }
+
+  .punches tbody th {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .punches .track-cell {
+    grid-row: 1;
+    grid-column: 2 / 4;
+  }
+
+  .punches .track {
+    height: 1.5rem;
+  }
+
+  .punches .track span {
+    top: 0.375rem;
+    height: 0.75rem;
+  }
+
+  .punches tbody .day-total {
+    grid-row: 1;
+    grid-column: 4;
+  }
+
+  .punches .day-total span:not(.empty) {
+    display: none;
+  }
+
+  .punches td.punch {
+    grid-row: 2;
+  }
+
+  .punches td input[type='text'] {
+    min-height: 3rem;
+    font-size: 0.8125rem;
+  }
+
+  /* The total stays in reach of the thumb while the week is filled in. */
+  .tc-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 -1rem;
+    padding: 0.625rem 1rem;
+    background: var(--panel);
+    color: var(--panel-text);
+  }
+
+  .tc-bar p {
+    margin: 0;
+    font: 400 0.875rem var(--mono);
+    line-height: 1.2;
+  }
+
+  .tc-bar strong {
+    font-size: 1.875rem;
+    letter-spacing: -0.04em;
+  }
+
+  .tc-bar span {
+    display: block;
+    margin-top: 0.125rem;
+    color: var(--panel-muted);
+    font-size: 0.75rem;
+  }
+
+  .tc-bar button {
+    min-height: 3rem;
+  }
+
+  .readout {
+    position: static;
+  }
+
+  /* A wide table scrolls sideways inside its own box instead of widening the page. */
+  .prose .chart {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .prose .chart th,
+  .prose .chart td {
+    padding: 0.375rem 0.5rem;
+  }
+}
+
+/* Embeds */
+
 .embed-preview iframe {
   display: block;
   max-width: 640px;
@@ -754,29 +1444,47 @@ a.button:not(.secondary) {
   font-size: 1rem;
 }
 
-/* The widget pages that other sites put in a frame. */
+/* The widget pages that other sites put in a frame. They are light unless asked for dark. */
 html[data-embed] {
   color-scheme: light;
-  --bg: #ffffff;
-  --surface: #f5f6f8;
-  --text: #1a1d21;
-  --muted: #5b6470;
-  --border: #d8dce2;
-  --accent: #1558d6;
-  --highlight: #fff3bf;
-  --error: #c62828;
+  --bg: #e9ebec;
+  --surface: #f6f7f7;
+  --field: #ffffff;
+  --text: #15181b;
+  --muted: #525a60;
+  --border: #aeb4b8;
+  --hair: #d5d9db;
+  --tick: #c3c8cb;
+  --signal: #f04e12;
+  --signal-text: #b5380a;
+  --panel: #15181b;
+  --panel-text: #eef0f1;
+  --panel-muted: #a9b0b5;
+  --panel-line: #5b636a;
+  --panel-signal: #ff6a2b;
+  --highlight: #ffe0d3;
+  --error: #b5380a;
 }
 
 html[data-embed][data-theme='dark'] {
   color-scheme: dark;
-  --bg: #15171a;
-  --surface: #1f2226;
-  --text: #e8eaed;
-  --muted: #9aa3ad;
-  --border: #353a41;
-  --accent: #8ab4f8;
-  --highlight: #4a4320;
-  --error: #ef9a9a;
+  --bg: #101315;
+  --surface: #1a1e21;
+  --field: #101315;
+  --text: #eef0f1;
+  --muted: #a9b0b5;
+  --border: #4a5157;
+  --hair: #2b3035;
+  --tick: #3d444a;
+  --signal: #ff6a2b;
+  --signal-text: #ff6a2b;
+  --panel: #eef0f1;
+  --panel-text: #15181b;
+  --panel-muted: #525a60;
+  --panel-line: #aeb4b8;
+  --panel-signal: #d8430b;
+  --highlight: #3a2318;
+  --error: #ff6a2b;
 }
 
 .embed-body {
@@ -810,28 +1518,23 @@ html[data-embed][data-theme='dark'] {
   color: inherit;
 }
 
-/* On a phone, a wide table scrolls sideways inside its own box instead of widening the page. */
-@media (max-width: 40rem) {
-  .prose .chart {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
-  .prose .chart th,
-  .prose .chart td {
-    padding: 0.375rem 0.5rem;
-  }
-}
-
 @media print {
   :root {
     --bg: #fff;
     --surface: #fff;
+    --field: #fff;
     --text: #000;
     --muted: #444;
     --border: #999;
-    --accent: #000;
+    --hair: #999;
+    --tick: #ccc;
+    --signal: #000;
+    --signal-text: #000;
+    --panel: #fff;
+    --panel-text: #000;
+    --panel-muted: #444;
+    --panel-line: #999;
+    --panel-signal: #000;
     --highlight: transparent;
   }
 
@@ -900,7 +1603,7 @@ html[data-embed][data-theme='dark'] {
   }
 
   /* Time card */
-  .timecard {
+  .timecard .tool {
     margin: 0;
     padding: 0;
     background: none;
@@ -921,12 +1624,14 @@ html[data-embed][data-theme='dark'] {
   }
 
   .timecard input[type='text'] {
+    min-height: 0;
     padding: 4pt 6pt;
     background: none;
     border-color: var(--border);
     border-radius: 0;
     outline: 0;
     font-size: 11pt;
+    text-align: left;
   }
 
   .timecard input::placeholder {
@@ -936,6 +1641,19 @@ html[data-embed][data-theme='dark'] {
   .punches th,
   .punches td {
     padding: 2pt 3pt;
+  }
+
+  .punches .day-abbr {
+    display: none;
+  }
+
+  .punches .day-total {
+    min-width: 6.5rem;
+  }
+
+  .punches .day-total span {
+    color: var(--muted);
+    font-size: 0.875rem;
   }
 
   /* Fourteen rows have to share one page. */
@@ -958,6 +1676,7 @@ html[data-embed][data-theme='dark'] {
   }
 
   .totals {
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     gap: 6pt;
     margin: 8pt 0;
@@ -965,8 +1684,13 @@ html[data-embed][data-theme='dark'] {
 
   .totals > div {
     padding: 5pt 7pt;
-    border-radius: 0;
+    border: 1px solid var(--border);
     break-inside: avoid;
+  }
+
+  .totals .grand,
+  .totals .gross {
+    border-color: var(--text);
   }
 
   .timecard.is-blank .totals > div {
@@ -974,7 +1698,12 @@ html[data-embed][data-theme='dark'] {
   }
 
   .totals dd {
-    font-size: 11pt;
+    margin: 0;
+    font: 700 11pt var(--mono);
+  }
+
+  .totals dd.pay {
+    font-weight: 400;
   }
 
   .timecard .print-settings {

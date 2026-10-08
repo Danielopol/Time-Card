@@ -36,19 +36,27 @@ const appSchema = appName && {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {noindex && <meta name="robots" content="noindex" />}
     {appSchema && <script type="application/ld+json" set:html={JSON.stringify(appSchema).replace(/</g, '\\u003c')} />}
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">{SITE.name}</a>
-      <nav aria-label="Tools">
+      <div class="bar">
+        <a class="brand" href="/" aria-label={SITE.name}>
+          <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="wordmark" aria-hidden="true">Hours<span>Total</span></span>
+        </a>
+        <p class="tagline">Simple tools for working with time</p>
+      </div>
+      <nav class="rack" aria-label="Tools">
         <ul>
           {
-            TOOLS.map((tool) => (
+            TOOLS.map((tool, i) => (
               <li>
-                <a href={tool.href} aria-current={Astro.url.pathname === tool.href ? 'page' : undefined}>
-                  {tool.label}
+                <a href={tool.href} aria-label={tool.label} aria-current={Astro.url.pathname === tool.href ? 'page' : undefined}>
+                  <span class="no" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                  {tool.short}
                 </a>
               </li>
             ))
@@ -61,8 +69,7 @@ const appSchema = appName && {
     </main>
     <p class="print-only print-credit">Printed from {host}</p>
     <footer class="site-footer">
-      <p>Your entries stay in your browser. Nothing you type is sent to a server.</p>
-      <p>Results are estimates and are not legal or payroll advice.</p>
+      <p>Your entries stay in your browser. Nothing you type is sent to a server. Results are estimates and are not legal or payroll advice.</p>
       <p>
         <a href="/guides/">Guides</a> · <a href="/states/">Overtime by state</a> · <a href="/embed/">Embed</a> · <a href="/about/">About</a> · <a
           href="/privacy/">Privacy</a>

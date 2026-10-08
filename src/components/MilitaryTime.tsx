@@ -1,5 +1,8 @@
 import { useState } from 'preact/hooks';
-import { format12, format24, formatMilitary, parseTime } from '../engine/time';
+import { MINUTES_PER_DAY, format12, format24, formatMilitary, parseTime } from '../engine/time';
+import { Gauge } from './Track';
+
+const DAY_LABELS = [0, 6, 12, 18, 24].map((hour) => ({ at: hour * 60, text: `${String(hour).padStart(2, '0')}00` }));
 
 /** Military time also writes midnight as 2400. */
 function parseMilitary(input: string): number | null {
@@ -41,6 +44,7 @@ export default function MilitaryTime() {
           ? 'Type a time in either box. Add AM or PM to a standard time.'
           : `${format12(minutes)} = ${formatMilitary(minutes)} military time, or ${format24(minutes)} on a 24-hour clock.`}
       </p>
+      <Gauge max={MINUTES_PER_DAY} step={60} value={minutes ?? 0} mark={minutes ?? undefined} labels={DAY_LABELS} />
     </div>
   );
 }

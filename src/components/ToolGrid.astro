@@ -8,7 +8,9 @@ interface Props {
 }
 
 const { hrefs, heading = 'More tools' } = Astro.props;
-const shown = TOOLS.filter((tool) => tool.href !== Astro.url.pathname && (!hrefs || hrefs.includes(tool.href)));
+const shown = TOOLS.map((tool, i) => ({ ...tool, no: String(i + 1).padStart(2, '0') })).filter(
+  (tool) => tool.href !== Astro.url.pathname && (!hrefs || hrefs.includes(tool.href)),
+);
 ---
 
 <section class="tool-grid no-print" aria-labelledby="more-tools">
@@ -17,7 +19,11 @@ const shown = TOOLS.filter((tool) => tool.href !== Astro.url.pathname && (!hrefs
     {
       shown.map((tool) => (
         <li>
+          <span class="no" aria-hidden="true">{tool.no}</span>
           <a href={tool.href}>{tool.label}</a>
+          <span class="sample">
+            {tool.example} <strong>→ {tool.answer}</strong>
+          </span>
           <p>{tool.blurb}</p>
         </li>
       ))
