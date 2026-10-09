@@ -17,7 +17,7 @@ export function cardToCSV(card: TimeCard, dayLabels: readonly string[]): string 
   const clock = (punch: number | null) => (punch === null ? '' : format12(punch));
 
   const rows: string[][] = [
-    ['Day', 'In', 'Lunch out', 'Lunch in', 'Out', 'Hours (H:MM)', 'Hours (decimal)', 'Regular', 'Overtime', 'Double time'],
+    ['Day', 'In', 'Lunch start', 'Lunch end', 'Out', 'Hours (H:MM)', 'Hours (decimal)', 'Regular', 'Overtime', 'Double time'],
   ];
   card.days.forEach((day, i) => {
     const tiers = result.days[i];

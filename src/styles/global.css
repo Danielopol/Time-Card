@@ -1240,6 +1240,16 @@ h2.spaced {
     font-weight: 700;
   }
 
+  .totals .gross dd.empty {
+    color: var(--panel-line);
+  }
+
+  .totals .gross dd.pay {
+    font-family: var(--sans);
+    font-size: 0.9375rem;
+    font-weight: 400;
+  }
+
   .readout .actions {
     margin-top: 1.25rem;
   }

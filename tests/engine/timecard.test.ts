@@ -157,7 +157,7 @@ describe('cardToCSV', () => {
   it('writes a header, a row per day, totals and pay', () => {
     const lines = cardToCSV(sampleCard(), labels).trimEnd().split('\r\n');
     expect(lines).toHaveLength(1 + 7 + 2);
-    expect(lines[0]).toBe('Day,In,Lunch out,Lunch in,Out,Hours (H:MM),Hours (decimal),Regular,Overtime,Double time');
+    expect(lines[0]).toBe('Day,In,Lunch start,Lunch end,Out,Hours (H:MM),Hours (decimal),Regular,Overtime,Double time');
     expect(lines[1]).toBe('Mon,8:00 AM,12:00 PM,1:00 PM,5:00 PM,8:00,8.00,8.00,0.00,0.00');
     expect(lines[5]).toBe('Fri,8:00 AM,12:00 PM,1:00 PM,7:00 PM,10:00,10.00,8.00,2.00,0.00');
     expect(lines[8]).toBe('Total,,,,,42:00,42.00,40.00,2.00,0.00');

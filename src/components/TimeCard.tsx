@@ -17,7 +17,7 @@ const SAVED_KEY = 'cardtime:saved';
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const EMPTY_HOURS = '--.--';
 const PUNCH_FIELDS = ['in', 'lunchOut', 'lunchIn', 'out'] as const;
-const PUNCH_LABELS = ['In', 'Lunch out', 'Lunch in', 'Out'];
+const PUNCH_LABELS = ['In', 'Lunch start', 'Lunch end', 'Out'];
 const ROUNDING_LABELS: Record<RoundingIncrement, string> = {
   0: 'Exact minutes',
   5: 'Nearest 5 minutes',
@@ -356,7 +356,7 @@ export default function TimeCard() {
                 <input
                   type="text"
                   inputMode="decimal"
-                  placeholder="18.50"
+                  placeholder="e.g. 18.50"
                   value={blank ? '' : form.rate}
                   aria-invalid={rateCents === null ? 'true' : undefined}
                   onInput={(e) => update({ rate: e.currentTarget.value })}
@@ -486,12 +486,19 @@ export default function TimeCard() {
               <dt>Total hours</dt>
               <dd>{blank ? '' : hours(result.totalMinutes)}</dd>
             </div>
-            {card.rateCents > 0 && !blank && (
-              <div class="gross">
-                <dt>Gross pay</dt>
-                <dd>{formatMoney(result.pay.total)}</dd>
-              </div>
-            )}
+            {!blank &&
+              (card.rateCents > 0 ? (
+                <div class="gross">
+                  <dt>Gross pay</dt>
+                  <dd>{formatMoney(result.pay.total)}</dd>
+                </div>
+              ) : (
+                <div class="gross no-print">
+                  <dt>Gross pay</dt>
+                  <dd class="empty">$--.--</dd>
+                  <dd class="pay">Enter an hourly rate</dd>
+                </div>
+              ))}
           </dl>
           {!blank && hasMealFlags && (
             <p class="hint no-print">
