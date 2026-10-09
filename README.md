@@ -9,6 +9,7 @@ npm run dev      # dev server on http://localhost:4321
 npm test         # engine tests
 npm run pdf      # regenerate the chart PDFs in public/
 npm run fonts    # cut the two typefaces down to the characters the site uses
+npm run brand    # regenerate the logo files, icons and sharing image in public/
 npm run build    # regenerate the PDFs, then build the static site in dist/
 ```
 
@@ -23,6 +24,10 @@ Pass `noindex` to `Base` on any page that should stay out of search results.
 ## Fonts
 
 Words are set in Barlow Semi Condensed and numbers in B612, both under the SIL Open Font License. The files in `src/fonts/` hold only the keyboard characters plus every other character found in `src/`. After adding text with a new symbol or accented letter, run `npm run fonts` and commit the result. A character missing from the files still shows, in the visitor's system font.
+
+## Logo and icons
+
+The header logo is drawn in CSS in `src/layouts/Base.astro`. `npm run brand` writes the same mark as files in `public/`: `logo.svg` and `logo-dark.svg` (mark and wordmark, for light and dark backgrounds), `logo-mark.svg`, `apple-touch-icon.png`, `favicon.ico` and `og.png`, the image shown when a page is shared. `favicon.svg` is kept by hand. Run the script again after changing the mark or the colours.
 
 ## Content
 
