@@ -1,0 +1,142 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { formatDecimalHours } from '../../engine/time';
+
+// Worked example: $18.50 an hour and 46 hours in the week, under the federal rules.
+const rateCents = 1850;
+const week = workedExample(RULE_SETS.federal, [10, 10, 10, 10, 6, 0, 0], rateCents);
+const overtimeRateCents = Math.round(rateCents * 1.5);
+if (week.pay.regular !== 74000 || week.pay.overtime !== 16650 || week.pay.total !== 90650 || overtimeRateCents !== 2775) {
+  throw new Error('The overtime pay example no longer matches the text.');
+}
+
+const rates = [10, 12, 15, 18, 20, 25, 30].map((dollars) => ({
+  rate: formatMoney(dollars * 100),
+  half: formatMoney(Math.round(dollars * 100 * 1.5)),
+  double: formatMoney(dollars * 100 * 2),
+}));
+
+const faq = [
+  {
+    q: 'How do I calculate overtime pay?',
+    a: 'Multiply your hourly rate by 1.5 to get the overtime rate, multiply that by your overtime hours, and add your regular pay for the first 40 hours. At $18.50 an hour and 6 overtime hours: $18.50 × 1.5 × 6 = $166.50 of overtime pay, plus $740.00 for 40 regular hours, which is $906.50.',
+  },
+  {
+    q: 'What is time and a half?',
+    a: 'Time and a half means 1.5 times the regular rate. At $20 an hour it is $30 an hour. Under federal law it is the minimum rate for hours over 40 in a workweek.',
+  },
+  {
+    q: 'When does overtime start?',
+    a: 'Under federal law, after 40 hours in a workweek. Some states also start it after 8 or 12 hours in a day. See the guide to daily vs weekly overtime.',
+  },
+  {
+    q: 'What is the regular rate?',
+    a: 'It is the average hourly rate for the workweek: total pay for the week, less the payments the law excludes, divided by the total hours worked. For someone paid a flat hourly rate it is just that rate. Bonuses and similar pay can raise it.',
+  },
+  {
+    q: 'Does overtime pay include taxes?',
+    a: 'The result is gross pay, before taxes and other deductions. Your take-home pay will be lower.',
+  },
+];
+---
+
+<Guide
+  slug="how-to-calculate-overtime-pay"
+  lede="Overtime pay is regular pay for the first 40 hours plus a higher rate for the hours after. Here is the calculation step by step, with a worked example and a table of rates."
+  sources={[
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+    { label: 'U.S. Department of Labor, Fact Sheet #56A: The Regular Rate of Pay', url: 'https://www.dol.gov/agencies/whd/fact-sheets/56a-regular-rate' },
+    { label: '29 CFR 778.104: Each workweek stands alone', url: 'https://www.law.cornell.edu/cfr/text/29/778.104' },
+  ]}
+  faq={faq}
+  tools={['/overtime-calculator/', '/', '/hours-calculator/']}
+>
+  <section>
+    <h2>The calculation in four steps</h2>
+    <ol>
+      <li><strong>Count the hours in the workweek.</strong> Add up every day, with unpaid breaks taken off.</li>
+      <li><strong>Split them.</strong> The first 40 hours are regular hours. Hours over 40 are overtime hours.</li>
+      <li><strong>Work out the overtime rate.</strong> Multiply your hourly rate by 1.5. Double time is 2 times the rate.</li>
+      <li><strong>Add it up.</strong> Regular hours times the rate, plus overtime hours times the overtime rate.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Worked example</h2>
+    <p>
+      An employee paid {formatMoney(rateCents)} an hour works four 10-hour days and a 6-hour day, which is
+      {formatDecimalHours(week.minutes.reduce((a, b) => a + b, 0))} hours.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Step</th>
+          <th scope="col">Working</th>
+          <th scope="col" class="num">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Regular hours</th><td>The first 40 hours</td><td class="num">{formatDecimalHours(week.totals.regular)}</td></tr>
+        <tr><th scope="row">Overtime hours</th><td>46 − 40</td><td class="num">{formatDecimalHours(week.totals.overtime)}</td></tr>
+        <tr><th scope="row">Overtime rate</th><td>{formatMoney(rateCents)} × 1.5</td><td class="num">{formatMoney(overtimeRateCents)}</td></tr>
+        <tr><th scope="row">Regular pay</th><td>40 × {formatMoney(rateCents)}</td><td class="num">{formatMoney(week.pay.regular)}</td></tr>
+        <tr><th scope="row">Overtime pay</th><td>6 × {formatMoney(overtimeRateCents)}</td><td class="num">{formatMoney(week.pay.overtime)}</td></tr>
+        <tr><th scope="row">Gross pay</th><td>{formatMoney(week.pay.regular)} + {formatMoney(week.pay.overtime)}</td><td class="num"><strong>{formatMoney(week.pay.total)}</strong></td></tr>
+      </tbody>
+    </table>
+    <p>
+      Try your own numbers in the <a href="/overtime-calculator/">overtime calculator</a>, or enter your daily times in the
+      <a href="/">time card calculator</a> and it works out the split for you.
+    </p>
+  </section>
+
+  <section>
+    <h2>Overtime rates at common hourly rates</h2>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col" class="num">Hourly rate</th>
+          <th scope="col" class="num">Time and a half (1.5×)</th>
+          <th scope="col" class="num">Double time (2×)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rates.map((r) => <tr><td class="num">{r.rate}</td><td class="num">{r.half}</td><td class="num">{r.double}</td></tr>)}
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>The week is the unit</h2>
+    <p>
+      Overtime is counted one workweek at a time. Hours are not averaged over two weeks, so 50 hours one week and 30 the next is 10 hours of overtime,
+      not none. See <a href="/guides/biweekly-vs-semi-monthly-overtime/">how overtime is counted on a biweekly schedule</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>The regular rate</h2>
+    <p>
+      The overtime rate is based on the <strong>regular rate</strong>, which is not always the same as the hourly rate on your pay stub. It is the
+      average hourly rate for the workweek: the total pay for the week, less the payments the law lets an employer leave out, divided by the total
+      hours worked. All pay for the work is included, so some bonuses can raise it. Payments that are entirely at the employer's discretion, among
+      others, can be left out.
+    </p>
+    <p>
+      The calculators on this site use one hourly rate and do not include bonuses or other extra pay. If you receive them, your overtime rate may be
+      higher than the one shown here.
+    </p>
+  </section>
+
+  <section>
+    <h2>When your state is different</h2>
+    <p>
+      Some states pay overtime for long days as well, and a few have double time. The same hours can pay more. See the rules for
+      <a href="/states/california/">California</a>, <a href="/states/alaska/">Alaska</a>, <a href="/states/nevada/">Nevada</a> and
+      <a href="/states/colorado/">Colorado</a>, and <a href="/guides/daily-vs-weekly-overtime/">daily vs weekly overtime</a>.
+    </p>
+  </section>
+</Guide>

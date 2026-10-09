@@ -1,0 +1,151 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { WEEKDAYS, workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { formatDecimalHours } from '../../engine/time';
+
+// Six scenarios at $20 an hour, run through the California rules by the same code as the time card.
+const rateCents = 2000;
+const scenarios = [
+  { title: 'One 9-hour day', note: 'One hour over 8.', hours: [9, 0, 0, 0, 0, 0, 0], pay: 19000 },
+  { title: 'Five 10-hour days', note: 'Each day has 2 hours over 8.', hours: [10, 10, 10, 10, 10, 0, 0], pay: 110000 },
+  { title: 'Four 12-hour days', note: 'Four hours over 8 each day, none over 12.', hours: [12, 12, 12, 12, 0, 0, 0], pay: 112000 },
+  { title: 'One 13-hour day', note: 'The last hour is over 12.', hours: [13, 0, 0, 0, 0, 0, 0], pay: 32000 },
+  { title: 'Six 8-hour days', note: 'No daily overtime, but the sixth day goes past 40 hours.', hours: [8, 8, 8, 8, 8, 8, 0], pay: 104000 },
+  { title: 'Seven days, with a 10-hour seventh day', note: 'Overtime on day six, then overtime and double time on day seven.', hours: [8, 8, 8, 8, 8, 8, 10], pay: 136000 },
+].map((s) => ({ ...s, result: workedExample(RULE_SETS.california, s.hours, rateCents) }));
+for (const s of scenarios) {
+  if (s.result.pay.total !== s.pay) throw new Error(`The California example "${s.title}" no longer matches the text.`);
+}
+
+const faq = [
+  {
+    q: 'How do I calculate overtime in California?',
+    a: 'Split each day: hours up to 8 are regular, hours over 8 up to 12 are overtime at 1.5 times, and hours over 12 are double time. Then check the week: regular hours over 40 are also overtime. On a seventh day of work in a workweek, the first 8 hours are overtime and the rest are double time.',
+  },
+  {
+    q: 'How much is overtime for 10 hours a day in California?',
+    a: 'Each 10-hour day has 8 regular hours and 2 overtime hours. At $20 an hour that is $160 + $60 = $220 a day, or $1,100 for five days.',
+  },
+  {
+    q: 'Do overtime hours count toward the 40-hour week?',
+    a: 'An hour paid as daily overtime is not paid again as weekly overtime, because an employer does not have to combine more than one overtime rate for the same hour. Only regular hours are tested against the 40-hour limit.',
+  },
+  {
+    q: 'Is a 12-hour shift double time in California?',
+    a: 'Not all of it. Double time starts after 12 hours, so a 12-hour day has 8 regular hours and 4 overtime hours. A 13-hour day has 8 regular, 4 overtime and 1 double-time hour.',
+  },
+  {
+    q: 'Does this work for alternative workweek schedules?',
+    a: 'No. Employees on an alternative workweek schedule, or covered by some union contracts, follow different overtime rules.',
+  },
+];
+---
+
+<Guide
+  slug="how-to-calculate-california-overtime"
+  lede="California overtime has three layers: a daily rule at 8 and 12 hours, a weekly rule at 40 hours and a seventh-day rule. Here is how to work through them in order, with six examples."
+  sources={[
+    {
+      label: 'California Labor Code § 510',
+      url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=510.&lawCode=LAB',
+    },
+    {
+      label: 'U.S. Department of Labor: state minimum wage and premium pay table (updated July 1, 2026)',
+      url: 'https://www.dol.gov/agencies/whd/minimum-wage/state',
+    },
+  ]}
+  faq={faq}
+  tools={['/', '/overtime-calculator/', '/hours-calculator/']}
+>
+  <section>
+    <h2>Work through it in four steps</h2>
+    <ol>
+      <li>
+        <strong>Split each day.</strong> The first 8 hours are regular. Hours over 8, up to 12, are overtime at 1.5 times the regular rate. Hours over
+        12 are double time.
+      </li>
+      <li>
+        <strong>Check the week.</strong> Add up the regular hours from step 1. Regular hours over 40 in the workweek are also overtime at 1.5 times.
+        Hours already paid as daily overtime are not paid again.
+      </li>
+      <li>
+        <strong>Check the seventh day.</strong> On the seventh day of work in a workweek, the first 8 hours are overtime at 1.5 times, and hours over 8
+        are double time. This calculator applies the rule when every day of the workweek has hours entered.
+      </li>
+      <li>
+        <strong>Price each tier.</strong> Regular hours at the rate, overtime hours at 1.5 times, double-time hours at 2 times.
+      </li>
+    </ol>
+    <p>
+      The rules themselves, with their sources, are on the <a href="/states/california/">California overtime rules</a> page. This guide is about
+      working the numbers.
+    </p>
+  </section>
+
+  <section>
+    <h2>Six worked examples at $20 an hour</h2>
+    {
+      scenarios.map((s) => (
+        <div class="example">
+          <h3>{s.title}</h3>
+          <p>{s.note}</p>
+          <table class="chart">
+            <thead>
+              <tr>
+                <th scope="col">Day</th>
+                <th scope="col" class="num">Hours</th>
+                <th scope="col" class="num">Regular</th>
+                <th scope="col" class="num">Overtime</th>
+                <th scope="col" class="num">Double time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.hours.map((h, i) =>
+                h > 0 ? (
+                  <tr>
+                    <th scope="row">{WEEKDAYS[i]}</th>
+                    <td class="num">{formatDecimalHours(Math.round(h * 60))}</td>
+                    <td class="num">{formatDecimalHours(s.result.days[i].regular)}</td>
+                    <td class="num">{formatDecimalHours(s.result.days[i].overtime)}</td>
+                    <td class="num">{formatDecimalHours(s.result.days[i].doubleTime)}</td>
+                  </tr>
+                ) : null,
+              )}
+              <tr>
+                <th scope="row">Week</th>
+                <td class="num">{formatDecimalHours(s.result.minutes.reduce((a, b) => a + b, 0))}</td>
+                <td class="num">{formatDecimalHours(s.result.totals.regular)}</td>
+                <td class="num">{formatDecimalHours(s.result.totals.overtime)}</td>
+                <td class="num">{formatDecimalHours(s.result.totals.doubleTime)}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="pay-line">
+            Gross pay: {formatMoney(s.result.pay.total)}
+            <span class="hint">
+              {' '}({formatMoney(s.result.pay.regular)} regular
+              {s.result.pay.overtime > 0 && ` + ${formatMoney(s.result.pay.overtime)} overtime`}
+              {s.result.pay.doubleTime > 0 && ` + ${formatMoney(s.result.pay.doubleTime)} double time`})
+            </span>
+          </p>
+        </div>
+      ))
+    }
+  </section>
+
+  <section>
+    <h2>Things the examples do not cover</h2>
+    <ul>
+      <li>Employees on an alternative workweek schedule, or under some union contracts, who follow different overtime rules.</li>
+      <li>Exempt employees.</li>
+      <li>A rate that changes during the week, or bonuses that raise the regular rate.</li>
+      <li>Meal and rest break pay. See <a href="/guides/california-meal-and-rest-breaks/">California meal and rest breaks</a>.</li>
+    </ul>
+    <p>
+      To run your own week, open the <a href="/?rules=california">time card calculator with California rules</a>. For the same hours under other
+      states' rules, see <a href="/guides/daily-vs-weekly-overtime/">daily vs weekly overtime</a>.
+    </p>
+  </section>
+</Guide>

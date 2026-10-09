@@ -267,12 +267,15 @@ Each state is a config object, so adding one means adding data plus tests, not n
 - **Six guides** at `/guides/`: the 7-minute rule, California meal and rest breaks, daily vs weekly overtime, biweekly vs semi-monthly pay, how to check paycheck hours, and how to fill out a paper time card.
 - **Embeddable widgets** at `/embed/`: the minutes to decimal converter and chart, as framed pages (`/embed/converter/`, `/embed/chart/`) with copy-paste code that includes a credit link. Only those two frames can be embedded by other sites; every other page still sends `X-Frame-Options: DENY` (see `public/_headers`).
 
-**Guides from §7 that were not written, and why.** The SERP-overlap checks showed the same pages ranking for related queries, so separate pages would compete with pages that already exist:
-- "How to convert minutes to decimal for payroll" and "Decimal hours vs hours:minutes" duplicate `/minutes-to-decimal/`.
-- "How to calculate hours worked (with lunch)" duplicates the homepage.
-- "How to calculate overtime pay" duplicates `/overtime-calculator/`.
-- "California overtime rules, with worked examples" is the California state page.
-- "Time card rounding: is it legal?" is covered in the 7-minute rule guide.
+**All twelve guides from §7 are now written** (9 October 2026). Five of them overlap in topic with pages that already exist, so each takes a different angle and links to the main page:
+- "How to convert minutes to decimal for payroll" covers converting and adding many entries, and spreadsheet formulas. `/minutes-to-decimal/` stays the converter.
+- "Decimal hours vs hours and minutes" covers the mix-up and what it costs.
+- "How to calculate hours worked with a lunch break" covers breaks and night shifts, with worked examples. The homepage stays the tool.
+- "How to calculate overtime pay" is the method and a rate table. `/overtime-calculator/` stays the tool.
+- "How to calculate California overtime" is a step-by-step method with six examples. `/states/california/` stays the page for the rules.
+- "Time card rounding: is it legal" covers testing your own pay. "The 7-minute rule" stays the explainer.
+
+**Watch in Search Console.** If two of these pages show up for the same queries and trade places, merge the weaker into the stronger and redirect it.
 
 **Next**
 - Affiliate cards and a comparison page (§6), once there is traffic to judge them against.

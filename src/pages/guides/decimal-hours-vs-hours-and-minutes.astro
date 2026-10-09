@@ -1,0 +1,142 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { formatMoney } from '../../engine/money';
+import { formatDecimalHours, formatHM } from '../../engine/time';
+
+const rows = [6, 10, 12, 15, 18, 20, 24, 30, 36, 40, 42, 45, 48, 54].map((m) => ({
+  hm: `0:${String(m).padStart(2, '0')}`,
+  dec: formatDecimalHours(m),
+}));
+
+// What the mix-up costs at $20 an hour. All figures in whole cents.
+const rateCents = 2000;
+const centsFor = (minutes: number) => Math.round((minutes * rateCents) / 60);
+const correctDay = centsFor(8 * 60 + 30); // 8:30 worked
+const wrongDay = Math.round(8.3 * rateCents); // typed as 8.30 hours
+const dayLoss = correctDay - wrongDay;
+const stubShort = centsFor(20); // 43.50 hours on a stub read as 43:50
+if (correctDay !== 17000 || wrongDay !== 16600 || dayLoss !== 400 || stubShort !== 667) {
+  throw new Error('The decimal mix-up example no longer matches the text.');
+}
+
+const faq = [
+  {
+    q: 'Is 8.30 hours the same as 8:30?',
+    a: 'No. 8:30 is 8 hours 30 minutes, which is 8.50 hours. 8.30 hours is 8 hours 18 minutes, because 0.30 of an hour is 18 minutes.',
+  },
+  {
+    q: 'How do I convert 7.75 hours to hours and minutes?',
+    a: 'Keep the 7 as hours and multiply 0.75 by 60 to get 45 minutes. 7.75 hours is 7 hours 45 minutes.',
+  },
+  {
+    q: 'What is 0.1 of an hour in minutes?',
+    a: 'Six minutes. A tenth of an hour is 60 ÷ 10 = 6 minutes, so 0.2 is 12 minutes and 0.5 is 30 minutes.',
+  },
+  {
+    q: 'Why does my pay stub show decimal hours?',
+    a: 'Payroll multiplies hours by a pay rate, and that needs a decimal. A stub showing 38.75 hours means 38 hours 45 minutes.',
+  },
+  {
+    q: 'Why do some employers use tenths of an hour?',
+    a: 'Tenths of an hour are 6-minute steps, which keeps the arithmetic to one decimal place. The federal rounding rule mentions rounding to the nearest tenth of an hour as one accepted method.',
+  },
+];
+---
+
+<Guide
+  slug="decimal-hours-vs-hours-and-minutes"
+  lede="A time of 8:30 is not 8.30 hours. Hours and minutes count in sixties and decimals count in tens, and confusing them is one of the commonest mistakes on a timesheet."
+  sources={[
+    { label: '29 CFR 785.48: Time clocks and rounding', url: 'https://www.law.cornell.edu/cfr/text/29/785.48' },
+  ]}
+  faq={faq}
+  tools={['/minutes-to-decimal/', '/decimal-to-minutes/', '/hours-calculator/']}
+>
+  <section>
+    <h2>Two ways to write the same time</h2>
+    <ul>
+      <li><strong>Hours and minutes</strong> (8:30) is how a clock shows time. An hour has 60 minutes.</li>
+      <li><strong>Decimal hours</strong> (8.50) writes the minutes as a fraction of an hour. It is how payroll records time.</li>
+    </ul>
+    <p>
+      To convert, divide the minutes by 60 and add them to the hours. 8:30 is 8 + 30 ÷ 60 = 8.50 hours. To go back, multiply the decimal part by 60.
+      8.50 hours is 8 hours and 0.50 × 60 = 30 minutes.
+    </p>
+  </section>
+
+  <section>
+    <h2>Why payroll uses decimals</h2>
+    <p>
+      Pay is hours multiplied by a rate, and you cannot multiply "8:30" by a dollar amount. As a decimal it works: 8.50 hours at $20 an hour is
+      8.50 × $20 = $170.00. Decimals also add up cleanly, with no carrying of 60 minutes into an hour.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common values</h2>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Hours and minutes</th>
+          <th scope="col">Decimal hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => <tr><th scope="row">{row.hm}</th><td>{row.dec}</td></tr>)}
+      </tbody>
+    </table>
+    <p>
+      Values such as 10 and 20 minutes do not divide evenly, so their decimals are rounded: 10 minutes is 0.1667 and is written 0.17. The
+      <a href="/minutes-to-decimal/">minutes to decimal chart</a> lists every minute.
+    </p>
+  </section>
+
+  <section>
+    <h2>What the mix-up costs</h2>
+    <p>Here is the mistake in two directions, at $20 an hour.</p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Mistake</th>
+          <th scope="col">What happens</th>
+          <th scope="col">Money</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">8:30 written as 8.30 on a timesheet</th>
+          <td>The day is paid as 8 hours 18 minutes, 12 minutes short.</td>
+          <td>{formatMoney(wrongDay)} paid instead of {formatMoney(correctDay)}, so {formatMoney(dayLoss)} short a day, or {formatMoney(dayLoss * 5)} short in a five-day week</td>
+        </tr>
+        <tr>
+          <th scope="row">43.50 on a pay stub read as 43:50</th>
+          <td>It looks as if 20 minutes of work were left off, when the stub is correct.</td>
+          <td>A false alarm worth {formatMoney(stubShort)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Check a stub or a timesheet by converting both sides to the same form first. See
+      <a href="/guides/check-your-paycheck-hours/">how to check the hours on your paycheck</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Tenths of an hour</h2>
+    <p>
+      Some employers count in tenths of an hour, which are steps of 6 minutes: 0.1 is 6 minutes, 0.5 is 30 minutes and 1.0 is 60 minutes. The
+      federal rule on rounding names rounding to the nearest tenth of an hour as one accepted method. See
+      <a href="/guides/7-minute-rule/">the 7-minute rule</a> for how rounding works.
+    </p>
+  </section>
+
+  <section>
+    <h2>Converting either way</h2>
+    <p>
+      For one value, use the <a href="/minutes-to-decimal/">minutes to decimal converter</a> or the
+      <a href="/decimal-to-minutes/">decimal hours to minutes converter</a>. For a whole column of times at once, see
+      <a href="/guides/minutes-to-decimal-for-payroll/">how to convert minutes to decimal for payroll</a>, which includes spreadsheet formulas.
+      {formatHM(510)} is {formatDecimalHours(510)} hours.
+    </p>
+  </section>
+</Guide>

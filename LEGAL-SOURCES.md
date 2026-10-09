@@ -99,3 +99,14 @@ The table at <https://www.dol.gov/agencies/whd/minimum-wage/state>, marked "Upda
 - **Colorado meal periods:** a summary of the DOL's January 2023 meal-period table said Colorado's rule applies only to certain industries. The COMPS Order #40 text, read directly, has no such limit in Rule 5.1, so the Colorado page follows the order. Worth a check with the Colorado Division of Labor Standards and Statistics.
 - **Unreachable from here:** dir.ca.gov and labor.nv.gov did not respond. akleg.gov and leg.state.nv.us show a bot check to automated browsers. All four are linked as sources and load normally in an ordinary browser.
 - **Not covered by any page:** exempt employees, multiple pay rates, bonuses that change the regular rate, and local rules.
+
+## Added 9 October 2026: the remaining six guides
+
+All read in full unless noted.
+
+- **29 CFR 785.19 (meal) and 785.18 (rest):** a bona fide meal period is not work time, the employee must be completely relieved from duty to eat, 30 minutes or more is ordinarily long enough, and an employee required to eat at a desk is still working. Rest periods of about 5 to 20 minutes are counted as hours worked. <https://www.law.cornell.edu/cfr/text/29/785.19>, <https://www.law.cornell.edu/cfr/text/29/785.18>
+- **DOL Fact Sheet #22 (Hours Worked, revised July 2008):** short rest periods, usually 20 minutes or less, must be counted as hours worked; bona fide meal periods, typically 30 minutes or more, generally need not be compensated. <https://www.dol.gov/agencies/whd/fact-sheets/22-flsa-hours-worked>
+- **DOL Fact Sheet #56A (The Regular Rate, revised December 2019):** the regular rate is total pay for the workweek, less the payments the law excludes, divided by total hours worked in the week. It includes all remuneration for employment, and payments that are entirely at the employer's discretion can be excluded. The overtime guide states this principle only. It gives no worked example with bonuses, because the method for adding the overtime premium was not read. <https://www.dol.gov/agencies/whd/fact-sheets/56a-regular-rate>
+- **Spreadsheet formulas** in the payroll conversion guide (`=A2*24`, `=TIMEVALUE(A2)*24`, `=B2+C2/60`, the `[h]:mm` format) are standard Excel and Google Sheets behaviour. They were not run in either program.
+- **California overtime examples** use only Labor Code § 510, as read on 6 October.
+

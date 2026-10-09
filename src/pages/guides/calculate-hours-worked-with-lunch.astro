@@ -1,0 +1,138 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { formatDecimalHours, formatHM, minutesBetween, parseTime } from '../../engine/time';
+
+// Each example is worked out by the same code as the time card, so the figures cannot drift from the text.
+const t = (s: string) => parseTime(s)!;
+const shift = (title: string, inn: string, out: string, lunchOut: string, lunchIn: string) => {
+  const span = minutesBetween(t(inn), t(out));
+  const worked = dayWorkedMinutes({ in: t(inn), lunchOut: t(lunchOut), lunchIn: t(lunchIn), out: t(out) }, 0);
+  return { title, inn, out, lunchOut, lunchIn, span, lunch: span - worked, worked };
+};
+const examples = [
+  shift('A 30-minute lunch', '8:00 AM', '4:30 PM', '12:00 PM', '12:30 PM'),
+  shift('A 45-minute lunch', '9:15 AM', '5:45 PM', '12:30 PM', '1:15 PM'),
+  shift('A night shift past midnight', '10:00 PM', '6:30 AM', '2:00 AM', '2:30 AM'),
+];
+if (examples.map((e) => e.worked).join() !== '480,465,480') throw new Error('The hours worked examples no longer match the text.');
+
+// A day with an unpaid lunch and two paid 15-minute rest breaks: only the lunch comes off.
+const withRestBreaks = minutesBetween(t('8:00 AM'), t('4:30 PM')) - 30;
+if (withRestBreaks !== 480) throw new Error('The rest break example no longer matches the text.');
+
+const faq = [
+  {
+    q: 'How do I calculate hours worked with a 30-minute lunch?',
+    a: 'Subtract the start time from the end time, then take off the 30 minutes. From 8:00 AM to 4:30 PM is 8 hours 30 minutes, so with a 30-minute lunch you worked 8 hours.',
+  },
+  {
+    q: 'Do I subtract 15-minute breaks?',
+    a: 'No, not for short rest breaks. Under the federal rules, rest periods of about 5 to 20 minutes are counted as hours worked. Only an unpaid meal period comes off.',
+  },
+  {
+    q: 'Is lunch paid?',
+    a: 'A bona fide meal period is not counted as work time under the federal rules, so it is normally unpaid. You must be completely relieved of duty to eat. If you have to work while you eat, that time counts as hours worked.',
+  },
+  {
+    q: 'How do I calculate hours worked when a shift crosses midnight?',
+    a: 'Count the time up to midnight, then add the time after it, then take off any unpaid break. From 10:00 PM to 6:30 AM is 8 hours 30 minutes. With a 30-minute meal break it is 8 hours.',
+  },
+  {
+    q: 'How do I turn hours and minutes into decimal hours?',
+    a: 'Divide the minutes by 60 and add them to the hours. 7 hours 45 minutes is 7 + 45 ÷ 60 = 7.75 hours. Payroll uses the decimal figure.',
+  },
+];
+---
+
+<Guide
+  slug="calculate-hours-worked-with-lunch"
+  lede="To work out hours worked, take the time from clocking in to clocking out and subtract any unpaid break. Here is the method, with examples for a lunch break, a long lunch and a night shift."
+  sources={[
+    { label: '29 CFR 785.19: Meal', url: 'https://www.law.cornell.edu/cfr/text/29/785.19' },
+    { label: '29 CFR 785.18: Rest', url: 'https://www.law.cornell.edu/cfr/text/29/785.18' },
+    { label: 'U.S. Department of Labor, Fact Sheet #22: Hours Worked Under the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/22-flsa-hours-worked' },
+  ]}
+  faq={faq}
+  tools={['/', '/hours-calculator/', '/minutes-to-decimal/']}
+>
+  <section>
+    <h2>The method</h2>
+    <ol>
+      <li><strong>Find the time between start and finish.</strong> From 8:00 AM to 4:30 PM is 8 hours 30 minutes.</li>
+      <li><strong>Subtract each unpaid break.</strong> A 30-minute lunch takes it down to 8 hours.</li>
+      <li><strong>Convert to decimal hours if you need to.</strong> Divide the minutes by 60: 8 hours 30 minutes is 8.50 hours before the lunch, and 8.00 after it.</li>
+    </ol>
+    <p>
+      For one shift, the <a href="/hours-calculator/">hours calculator</a> does this. For a week, with lunch times for every day, use the
+      <a href="/">time card calculator</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Worked examples</h2>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Example</th>
+          <th scope="col">Start and finish</th>
+          <th scope="col">Time at work</th>
+          <th scope="col">Lunch</th>
+          <th scope="col">Hours worked</th>
+          <th scope="col">Decimal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          examples.map((e) => (
+            <tr>
+              <th scope="row">{e.title}</th>
+              <td>{e.inn} to {e.out}</td>
+              <td>{formatHM(e.span)}</td>
+              <td>{e.lunchOut} to {e.lunchIn} ({e.lunch} minutes)</td>
+              <td><strong>{formatHM(e.worked)}</strong></td>
+              <td>{formatDecimalHours(e.worked)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      In the night shift, the clock-out time of 6:30 AM is earlier than the clock-in time of 10:00 PM, so it is counted as the next morning.
+    </p>
+  </section>
+
+  <section>
+    <h2>Which breaks come off?</h2>
+    <p>Under the federal rules, the answer depends on the kind of break.</p>
+    <ul>
+      <li>
+        <strong>Meal periods.</strong> A bona fide meal period is not work time, so it comes off. The employee must be completely relieved of duty
+        for the purpose of eating a regular meal, and 30 minutes or more is ordinarily long enough. An employee who has to work while eating, such as
+        an office worker required to eat at a desk, is still working, so that time counts.
+      </li>
+      <li>
+        <strong>Short rest breaks.</strong> Rest periods of about 5 to 20 minutes are counted as hours worked, so they do not come off. Coffee breaks
+        and snack time are rest periods, not meal periods.
+      </li>
+    </ul>
+    <p>
+      For example, take 8:00 AM to 4:30 PM with a 30-minute unpaid lunch and two paid 15-minute rest breaks. Only the lunch comes off, so the day is
+      {formatHM(withRestBreaks)} hours worked, not 7:30.
+    </p>
+    <p>
+      Some states add their own break rules, and your employer's policy decides whether a particular break is paid. See
+      <a href="/guides/california-meal-and-rest-breaks/">California meal and rest breaks</a> for one example.
+    </p>
+  </section>
+
+  <section>
+    <h2>Common mistakes</h2>
+    <ul>
+      <li>Subtracting a paid break, or leaving an unpaid lunch in.</li>
+      <li>Taking the lunch off twice, once on the card and once when totalling.</li>
+      <li>Reading a night shift as a negative number instead of counting past midnight.</li>
+      <li>Writing 7 hours 45 minutes as 7.45. It is 7.75 hours. See <a href="/guides/decimal-hours-vs-hours-and-minutes/">decimal hours vs hours and minutes</a>.</li>
+    </ul>
+  </section>
+</Guide>

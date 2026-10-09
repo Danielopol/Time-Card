@@ -1,0 +1,154 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { formatMoney } from '../../engine/money';
+import type { RoundingIncrement } from '../../engine/round';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { parseTime } from '../../engine/time';
+
+// Three weekly patterns, each run through every rounding system. Lunch is 12:00 to 12:30 every day.
+const t = (s: string) => parseTime(s)!;
+const lunch = { lunchOut: t('12:00 PM'), lunchIn: t('12:30 PM') };
+const patterns = [
+  {
+    title: 'Mixed: sometimes early, sometimes late',
+    days: [['7:53 AM', '5:07 PM'], ['8:07 AM', '4:53 PM'], ['7:58 AM', '5:02 PM'], ['8:02 AM', '4:58 PM'], ['8:00 AM', '5:00 PM']],
+  },
+  { title: 'In 5 minutes early (7:55), out on the dot (5:00)', days: Array(5).fill(['7:55 AM', '5:00 PM']) },
+  { title: 'In on time (8:00), out 6 minutes late (5:06)', days: Array(5).fill(['8:00 AM', '5:06 PM']) },
+];
+const increments: { value: RoundingIncrement; label: string }[] = [
+  { value: 0, label: 'Exact' },
+  { value: 5, label: 'Nearest 5 minutes' },
+  { value: 6, label: 'Nearest 6 minutes' },
+  { value: 15, label: 'Nearest 15 minutes' },
+];
+const week = (days: string[][], rounding: RoundingIncrement) =>
+  days.reduce((sum, [inn, out]) => sum + dayWorkedMinutes({ in: t(inn), ...lunch, out: t(out) }, rounding), 0);
+const table = patterns.map((p) => {
+  const actual = week(p.days, 0);
+  return { ...p, diffs: increments.map((inc) => week(p.days, inc.value) - actual) };
+});
+const expected = [
+  [0, 0, 0, 0],
+  [0, 0, 5, -25],
+  [0, -5, 0, -30],
+];
+if (JSON.stringify(table.map((r) => r.diffs)) !== JSON.stringify(expected)) throw new Error('The rounding examples no longer match the text.');
+
+// The third pattern under quarter-hour rounding, over 50 working weeks at $20 an hour.
+const lostMinutes = -table[2].diffs[3] * 50;
+const lostCents = Math.round((lostMinutes * 2000) / 60);
+if (lostMinutes !== 1500 || lostCents !== 50000) throw new Error('The yearly rounding figure no longer matches the text.');
+
+const signed = (m: number) => (m > 0 ? `+${m}` : m < 0 ? `−${Math.abs(m)}` : '0');
+
+const faq = [
+  {
+    q: 'Is it legal for an employer to round my time?',
+    a: 'Under federal rules, yes, if the rounding does not, over time, leave employees unpaid for time they worked. In California, a court of appeal has allowed neutral rounding of work time, but the California Supreme Court has held that meal period punches cannot be rounded. Your state and your employer\'s policy may differ.',
+  },
+  {
+    q: 'Which rounding systems does the federal rule mention?',
+    a: 'The nearest 5 minutes, the nearest tenth of an hour (6 minutes) and the nearest quarter hour (15 minutes).',
+  },
+  {
+    q: 'How do I know if rounding is costing me time?',
+    a: 'Record your real clock times for a few weeks. Enter them in the time card calculator with Rounding set to exact minutes, note the total, then switch Rounding to your employer\'s system and compare. A difference that is always negative means the rounding is working against you.',
+  },
+  {
+    q: 'What if my employer always rounds down?',
+    a: 'Courts have treated rounding policies as a problem when they systematically underpay employees, for example by only ever rounding down. Ask payroll for the written policy and show them your comparison. If you are still concerned, your state labor office can explain the rules.',
+  },
+  {
+    q: 'Can my lunch break be rounded?',
+    a: 'In California, no: the California Supreme Court held in 2021 that meal period punches cannot be rounded. Elsewhere, ask your employer for the policy.',
+  },
+];
+---
+
+<Guide
+  slug="time-card-rounding-is-it-legal"
+  lede="Rounding clock times is legal when it is neutral, but a rule that is fair on paper can still lose you time in practice. Here is what the law says and how to test your own pay."
+  sources={[
+    { label: '29 CFR 785.48: Time clocks and rounding', url: 'https://www.law.cornell.edu/cfr/text/29/785.48' },
+    {
+      label: 'Donohue v. AMN Services, LLC, California Supreme Court, No. S253677 (February 25, 2021)',
+      url: 'https://supreme.courts.ca.gov/sites/default/files/supremecourt/default/2022-08/S253677.pdf',
+    },
+  ]}
+  faq={faq}
+  tools={['/', '/hours-calculator/', '/minutes-to-decimal/']}
+>
+  <section>
+    <h2>Is rounding legal?</h2>
+    <p>
+      The Department of Labor's rule, 29 CFR 785.48(b), accepts recording starting and stopping times to the nearest 5 minutes, to the nearest tenth of
+      an hour or to the nearest quarter of an hour. It sets one condition: the practice must not, over a period of time, leave employees unpaid for all
+      the time they actually worked.
+    </p>
+    <p>
+      So the test is the pattern, not the rule. A policy is neutral when it rounds in the employee's favour about as often as against. Courts have treated
+      a policy as a problem when it systematically underpays employees. For the details and for California, see
+      <a href="/guides/7-minute-rule/">the 7-minute rule</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>The same habits under different systems</h2>
+    <p>
+      The table shows three weekly patterns of clock times, each run through the three systems the federal rule names. Each figure is how many minutes
+      the week's paid time differs from the time actually worked. A minus sign means the employee is paid for less time than they worked.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Pattern (five days a week)</th>
+          {increments.map((inc) => <th scope="col" class="num">{inc.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          table.map((row) => (
+            <tr>
+              <th scope="row">{row.title}</th>
+              {row.diffs.map((d) => <td class="num">{signed(d)}</td>)}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      The mixed pattern comes out even under every system, which is what neutral rounding looks like. The other two are steady habits, and the result
+      depends on the system. Arriving 5 minutes early costs nothing under 5-minute rounding but 25 minutes a week under quarter-hour rounding.
+      Finishing 6 minutes late costs 30 minutes a week under quarter-hour rounding.
+    </p>
+    <p>
+      That last habit, under quarter-hour rounding, is {lostMinutes / 60} hours over 50 working weeks. At $20 an hour it is {formatMoney(lostCents)}.
+      Whether such a pattern is lawful depends on the facts, but it is the kind of result the "over a period of time" condition is about.
+    </p>
+  </section>
+
+  <section>
+    <h2>How to check your own pay</h2>
+    <ol>
+      <li>For three or four weeks, write down the real times you clock in, clock out and take lunch.</li>
+      <li>Enter a week in the <a href="/">time card calculator</a> with Rounding set to <strong>Exact minutes</strong> and note the total.</li>
+      <li>Change Rounding to your employer's system, such as <strong>Nearest 15 minutes</strong>, and note the new total.</li>
+      <li>Compare. The gap is what rounding does to that week. Repeat for each week and add them up.</li>
+      <li>Compare the rounded total with your pay stub. See <a href="/guides/check-your-paycheck-hours/">how to check the hours on your paycheck</a>.</li>
+    </ol>
+    <p>
+      One week proves little, because rounding is meant to average out. A gap that is the same sign every week is worth raising.
+    </p>
+  </section>
+
+  <section>
+    <h2>If it keeps costing you</h2>
+    <ul>
+      <li>Ask payroll for the rounding policy in writing, and which system it uses.</li>
+      <li>Share your comparison and ask how the policy averages out for you.</li>
+      <li>In California, remember that meal period punches cannot be rounded.</li>
+      <li>If it is not settled, your state labor office or the U.S. Department of Labor's Wage and Hour Division can explain the rules that apply.</li>
+    </ul>
+  </section>
+</Guide>

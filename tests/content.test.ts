@@ -2,6 +2,8 @@ import { existsSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { workedExample } from '../src/engine/examples';
 import { RULE_SETS, ruleSetFromQuery } from '../src/engine/rules/index';
+import { dayWorkedMinutes } from '../src/engine/timecard';
+import { parseTime, toDecimalHours } from '../src/engine/time';
 import { roundMinutes } from '../src/engine/round';
 import { GUIDES, formatDate, getGuide } from '../src/guides';
 import { STATES, getState } from '../src/states';
@@ -131,6 +133,43 @@ describe('guide figures', () => {
       const expectedMinute = m <= 7 ? 0 : m <= 22 ? 15 : m <= 37 ? 30 : m <= 52 ? 45 : 60;
       expect(rounded(m), `8:${m}`).toBe(expectedMinute);
     }
+  });
+});
+
+describe('figures in the other guides', () => {
+  it.each([
+    ['one 9-hour day', week(9, 0, 0, 0, 0, 0, 0), 19000],
+    ['four 12-hour days', week(12, 12, 12, 12, 0, 0, 0), 112000],
+    ['six 8-hour days', week(8, 8, 8, 8, 8, 8, 0), 104000],
+    ['a 10-hour seventh day', week(8, 8, 8, 8, 8, 8, 10), 136000],
+  ])('California: %s pays what the guide says at $20 an hour', (_label, hours, cents) => {
+    expect(workedExample(RULE_SETS.california, hours, 2000).pay.total).toBe(cents);
+  });
+
+  it('pays a seventh day of 10 hours as 8 overtime and 2 double time', () => {
+    const result = workedExample(RULE_SETS.california, week(8, 8, 8, 8, 8, 8, 10), 2000);
+    expect(result.totals).toEqual({ regular: h(40), overtime: h(16), doubleTime: h(2) });
+  });
+
+  it('matches the federal overtime pay example', () => {
+    const result = workedExample(RULE_SETS.federal, week(10, 10, 10, 10, 6, 0, 0), 1850);
+    expect(result.pay).toEqual({ regular: 74000, overtime: 16650, doubleTime: 0, total: 90650 });
+  });
+
+  it('shows rounding each entry loses more than converting the total', () => {
+    const exact = Math.round((2500 * 2000) / 60);
+    const convertTotal = Math.round((Math.round(toDecimalHours(2500) * 100) * 2000) / 100);
+    const convertEach = Math.round((Math.round(toDecimalHours(500) * 100) * 5 * 2000) / 100);
+    expect([exact, convertTotal, convertEach]).toEqual([83333, 83340, 83300]);
+  });
+
+  it('shows the same clock habits losing different time under different rounding', () => {
+    const t = (s: string) => parseTime(s)!;
+    const lunch = { lunchOut: t('12:00 PM'), lunchIn: t('12:30 PM') };
+    const diff = (inn: string, out: string, rounding: 0 | 5 | 6 | 15) =>
+      (dayWorkedMinutes({ in: t(inn), ...lunch, out: t(out) }, rounding) - dayWorkedMinutes({ in: t(inn), ...lunch, out: t(out) }, 0)) * 5;
+    expect([0, 5, 6, 15].map((r) => diff('7:55 AM', '5:00 PM', r as 0 | 5 | 6 | 15))).toEqual([0, 0, 5, -25]);
+    expect([0, 5, 6, 15].map((r) => diff('8:00 AM', '5:06 PM', r as 0 | 5 | 6 | 15))).toEqual([0, -5, 0, -30]);
   });
 });
 
