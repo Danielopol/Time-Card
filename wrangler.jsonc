@@ -6,5 +6,7 @@
     "directory": "./dist",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
-  }
+  },
+  // Branch builds run `wrangler preview`, which refuses to run without this block. It can stay empty.
+  "previews": {}
 }
