@@ -10,6 +10,12 @@ const common = [0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1, 1.25
   minutes: decimalHoursToMinutes(hours),
 }));
 
+// Every hundredth of an hour, for searches such as "0.79 in minutes".
+const hundredths = Array.from({ length: 99 }, (_, i) => {
+  const hours = (i + 1) / 100;
+  return { id: `h0-${String(i + 1).padStart(2, '0')}`, hours: hours.toFixed(2), minutes: decimalHoursToMinutes(hours) };
+});
+
 const faq = [
   {
     q: 'What is 0.75 hours in minutes?',
@@ -43,7 +49,7 @@ const faq = [
 ---
 
 <Base
-  title="Decimal to Minutes Converter: Decimal Hours to H:MM"
+  title="Decimal to Minutes Converter: Decimal Hours to Hours & Minutes"
   description="Free decimal to minutes converter. Multiply the decimal part by 60: 0.75 hours is 45 minutes, and 8.67 hours is 8 hours 40 minutes."
   appName="Decimal Hours to Minutes Converter"
 >
@@ -96,6 +102,32 @@ const faq = [
       </p>
     </section>
   </div>
+
+  <section class="prose">
+    <h2>Decimal hours to minutes chart, 0.01 to 0.99</h2>
+    <p>Find the decimal part of your hours in the first column. 7.79 hours is 7 hours plus the 47 minutes shown for 0.79.</p>
+    <table class="chart">
+      <caption>Hundredths of an hour in minutes</caption>
+      <thead>
+        <tr>
+          <th scope="col">Decimal hours</th>
+          <th scope="col">In minutes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          hundredths.map((row) => (
+            <tr id={row.id}>
+              <th scope="row">
+                <a href={`#${row.id}`}>{row.hours}</a>
+              </th>
+              <td>{row.hours} hours = {row.minutes} {row.minutes === 1 ? 'minute' : 'minutes'}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
 
   <Faq items={faq} />
   <ToolGrid />

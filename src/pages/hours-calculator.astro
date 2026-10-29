@@ -6,6 +6,14 @@ import ToolGrid from '../components/ToolGrid.astro';
 
 const faq = [
   {
+    q: 'How do I calculate hours with a 30-minute lunch break?',
+    a: 'Subtract the start time from the end time, then take off 30 minutes. 8:00 AM to 4:30 PM is 8 hours 30 minutes, and with a 30-minute lunch you worked 8 hours. Type 30 in the Break box and the calculator does it for you.',
+  },
+  {
+    q: 'How do I calculate hours with a 1-hour lunch?',
+    a: 'Take the start-to-end time and subtract 60 minutes. 9:00 AM to 5:00 PM is 8 hours, so with a 1-hour lunch it is 7 hours. Enter 1:00 in the Break box.',
+  },
+  {
     q: 'How many hours is 9 to 5?',
     a: '9:00 AM to 5:00 PM is 8 hours. With a 30-minute unpaid break it is 7 hours 30 minutes, or 7.50 hours.',
   },
@@ -37,16 +45,16 @@ const faq = [
 ---
 
 <Base
-  title="Hours Calculator: Hours Between Two Times"
-  description="Work out the hours and minutes between a start time and an end time, with an optional break. Shows the answer in hours and minutes and in decimal hours."
+  title="Hours Calculator with Lunch Break: Hours Between Two Times"
+  description="Hours calculator with a lunch break: enter a start time, an end time and the lunch, and get hours and minutes plus decimal hours for payroll."
   appName="Hours Calculator"
 >
   <h1>Hours Calculator</h1>
-  <p class="lede">Find the hours and minutes between a start time and an end time.</p>
+  <p class="lede">Find the hours and minutes between a start time and an end time, with the lunch break taken out.</p>
   <HoursCalc client:load />
 
   <section class="prose">
-    <h2>How to calculate hours between two times</h2>
+    <h2>How to calculate hours between two times, with a lunch break</h2>
     <ol>
       <li>Write both times on a 24-hour clock. 9:00 AM is 9:00 and 5:30 PM is 17:30.</li>
       <li>Subtract the start from the end. 17:30 − 9:00 = 8 hours 30 minutes.</li>

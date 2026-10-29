@@ -15,3 +15,9 @@
   ! X-Frame-Options
 /embed/chart/*
   ! X-Frame-Options
+
+# The chart PDFs are copies of the chart on each page. Point search engines at the page so the page ranks, not the file.
+/military-time-chart.pdf
+  Link: <https://hourstotal.com/military-time-converter/>; rel="canonical"
+/decimal-hours-chart.pdf
+  Link: <https://hourstotal.com/minutes-to-decimal/>; rel="canonical"
