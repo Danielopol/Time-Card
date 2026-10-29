@@ -180,6 +180,44 @@ describe('figures in the other guides', () => {
   });
 });
 
+describe('figures in the October 29 guides', () => {
+  const stateRuleSets = ['federal', 'california', 'alaska', 'nevada', 'colorado'] as const;
+
+  it('pays 12-hour shift weeks as the guide says at $20 an hour under federal rules', () => {
+    const cases: [number[], number, number][] = [
+      [week(12, 12, 12, 0, 0, 0, 0), 0, 72000],
+      [week(12, 12, 12, 12, 0, 0, 0), h(8), 104000],
+      [week(11.5, 11.5, 11.5, 11.5, 0, 0, 0), h(6), 98000],
+      [week(12, 12, 12, 12, 12, 0, 0), h(20), 140000],
+    ];
+    for (const [hours, overtime, pay] of cases) {
+      const result = workedExample(RULE_SETS.federal, hours, 2000);
+      expect(result.totals.overtime).toBe(overtime);
+      expect(result.pay.total).toBe(pay);
+    }
+  });
+
+  it.each([
+    ['three 12-hour shifts', week(12, 12, 12, 0, 0, 0, 0), { federal: 54000, california: 63000, alaska: 63000, nevada: 63000, colorado: 54000 }],
+    ['four 12-hour shifts', week(12, 12, 12, 12, 0, 0, 0), { federal: 78000, california: 84000, alaska: 84000, nevada: 84000, colorado: 78000 }],
+  ])('%s pay what the guide says at $15 an hour in every rule set', (_label, hours, pay) => {
+    for (const id of stateRuleSets) expect(workedExample(RULE_SETS[id], hours, 1500).pay.total, id).toBe(pay[id]);
+  });
+
+  it('pays five and six night shifts of 8 hours as the guide says', () => {
+    expect(workedExample(RULE_SETS.federal, week(8, 8, 8, 8, 8, 0, 0), 2000).pay.total).toBe(80000);
+    expect(workedExample(RULE_SETS.federal, week(8, 8, 8, 8, 8, 8, 0), 2000).pay.total).toBe(104000);
+  });
+
+  it('counts a shift split at midnight as the guide says', () => {
+    const t = (s: string) => parseTime(s)!;
+    const punches = (inn: string, out: string) => ({ in: t(inn), lunchOut: null, lunchIn: null, out: t(out) });
+    expect(dayWorkedMinutes(punches('10:00 PM', '12:00 AM'), 0)).toBe(h(2));
+    expect(dayWorkedMinutes(punches('12:00 AM', '6:00 AM'), 0)).toBe(h(6));
+    expect(dayWorkedMinutes(punches('1845', '0215'), 0)).toBe(450);
+  });
+});
+
 describe('ruleSetFromQuery', () => {
   it.each([
     ['?rules=california', 'california'],

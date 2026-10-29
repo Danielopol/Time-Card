@@ -1,0 +1,210 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { formatDecimalHours, formatHM, parseTime } from '../../engine/time';
+import { statePath } from '../../states';
+
+// Everything below runs through the same code as the calculators, so the figures cannot drift from the text.
+const t = (s: string) => parseTime(s)!;
+const paidInShift = dayWorkedMinutes({ in: t('6:00 AM'), lunchOut: t('12:00 PM'), lunchIn: t('12:30 PM'), out: t('6:00 PM') }, 0);
+if (paidInShift !== 690) throw new Error('The paid hours example no longer matches the text.');
+
+// Federal rules at $20 an hour.
+const rateCents = 2000;
+const federal = RULE_SETS.federal;
+const weeks = [
+  { label: 'Three 12-hour shifts', hours: [12, 12, 12, 0, 0, 0, 0] },
+  { label: 'Four 12-hour shifts', hours: [12, 12, 12, 12, 0, 0, 0] },
+  { label: 'Four shifts of 11.5 paid hours', hours: [11.5, 11.5, 11.5, 11.5, 0, 0, 0] },
+  { label: 'Five 12-hour shifts', hours: [12, 12, 12, 12, 12, 0, 0] },
+].map((w) => {
+  const result = workedExample(federal, w.hours, rateCents);
+  const total = result.minutes.reduce((a, b) => a + b, 0);
+  return { ...w, total, regular: result.totals.regular, overtime: result.totals.overtime, pay: result.pay.total };
+});
+if (weeks.map((w) => `${w.total / 60}/${w.overtime / 60}/${w.pay}`).join() !== '36/0/72000,48/8/104000,46/6/98000,60/20/140000') {
+  throw new Error('The 12-hour shift weeks no longer match the text.');
+}
+
+// A three-shift week followed by a four-shift week: each week stands alone.
+const short = workedExample(federal, [12, 12, 12, 0, 0, 0, 0], rateCents);
+const long = workedExample(federal, [12, 12, 12, 12, 0, 0, 0], rateCents);
+if (short.totals.overtime !== 0 || long.totals.overtime !== 480 || short.pay.total + long.pay.total !== 176000) {
+  throw new Error('The alternating weeks example no longer matches the text.');
+}
+
+// The same two weeks through each rule set, at $15 an hour (below Nevada's daily-overtime wage threshold).
+const stateRate = 1500;
+const ruleSets = [RULE_SETS.federal, RULE_SETS.california, RULE_SETS.alaska, RULE_SETS.nevada, RULE_SETS.colorado];
+const schedules = [
+  { label: 'Three 12-hour shifts (36 hours)', hours: [12, 12, 12, 0, 0, 0, 0] },
+  { label: 'Four 12-hour shifts (48 hours)', hours: [12, 12, 12, 12, 0, 0, 0] },
+];
+const rows = ruleSets.map((rules) => ({
+  name: rules.name,
+  cells: schedules.map((s) => {
+    const result = workedExample(rules, s.hours, stateRate);
+    const { regular, overtime, doubleTime } = result.totals;
+    const parts = [`${formatDecimalHours(regular)} regular`];
+    if (overtime) parts.push(`${formatDecimalHours(overtime)} overtime`);
+    if (doubleTime) parts.push(`${formatDecimalHours(doubleTime)} double time`);
+    return { hours: parts.join(', '), pay: formatMoney(result.pay.total) };
+  }),
+}));
+
+const faq = [
+  {
+    q: 'How many hours is a 12-hour shift?',
+    a: 'A 12-hour shift is 12 hours at work, but you are paid for fewer if part of it is an unpaid meal break. From 6:00 AM to 6:00 PM with a 30-minute unpaid lunch is 11 hours 30 minutes, which is 11.50 decimal hours.',
+  },
+  {
+    q: 'Do 12-hour shifts get overtime?',
+    a: 'Under federal law, only for hours over 40 in a workweek. Four 12-hour shifts are 48 hours, so 8 are overtime. Three 12-hour shifts are 36 hours, so none are. Some states also pay overtime for long days, so a 12-hour shift can include overtime there even in a short week.',
+  },
+  {
+    q: 'Is overtime paid after 8 hours or after 12 hours?',
+    a: 'It depends on where you work. Federal law has no daily overtime. California and Alaska pay it after 8 hours in a day, and California pays double time after 12. Colorado pays it after 12 hours in a day, and Nevada pays it after 8 hours for employees earning less than 1.5 times the minimum wage.',
+  },
+  {
+    q: 'How much do four 12-hour shifts pay at $20 an hour?',
+    a: 'Under federal rules, 48 hours pay $1,040.00: 40 regular hours at $20.00 is $800.00, plus 8 overtime hours at $30.00 is $240.00. With a 30-minute unpaid meal each shift, it is 46 hours and $980.00.',
+  },
+  {
+    q: 'My schedule alternates three and four shifts. Is overtime averaged?',
+    a: 'No. Each workweek is counted on its own. In a 36-hour week there is no overtime, and in the 48-hour week the last 8 hours are overtime, even though the two weeks average 42 hours.',
+  },
+];
+---
+
+<Guide
+  slug="calculate-hours-and-overtime-for-12-hour-shifts"
+  lede="A 12-hour shift is rarely 12 paid hours, and whether it earns overtime depends on how many shifts you work in the week and where you work. Here is how to work out the hours and the pay."
+  sources={[
+    { label: '29 CFR 778.104: Each workweek stands alone', url: 'https://www.law.cornell.edu/cfr/text/29/778.104' },
+    { label: '29 CFR 778.105: Determining the workweek', url: 'https://www.law.cornell.edu/cfr/text/29/778.105' },
+    { label: '29 CFR 785.19: Meal', url: 'https://www.law.cornell.edu/cfr/text/29/785.19' },
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+    {
+      label: 'U.S. Department of Labor: state minimum wage and premium pay table (updated July 1, 2026)',
+      url: 'https://www.dol.gov/agencies/whd/minimum-wage/state',
+    },
+  ]}
+  faq={faq}
+  tools={['/', '/overtime-calculator/', '/hours-calculator/']}
+>
+  <section>
+    <h2>Step 1: find the paid hours in each shift</h2>
+    <p>
+      Start with the time between clocking in and clocking out, then take off any unpaid meal break. From 6:00 AM to 6:00 PM with a 30-minute lunch at noon,
+      the shift is 12 hours at work and {formatHM(paidInShift)} hours paid, which is {formatDecimalHours(paidInShift)} decimal hours. Short rest breaks of
+      about 5 to 20 minutes count as hours worked and do not come off. See
+      <a href="/guides/calculate-hours-worked-with-lunch/">how to calculate hours worked with a lunch break</a>, or use the
+      <a href="/hours-calculator/">hours calculator</a> for one shift.
+    </p>
+  </section>
+
+  <section>
+    <h2>Step 2: add up the week</h2>
+    <p>
+      Under federal law, overtime is 1.5 times the regular rate for hours over 40 in a workweek. It does not matter how long each day is. Here are the
+      common patterns at $20 an hour, using the federal rules.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Week</th>
+          <th scope="col" class="num">Hours</th>
+          <th scope="col" class="num">Regular</th>
+          <th scope="col" class="num">Overtime</th>
+          <th scope="col" class="num">Gross pay</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          weeks.map((w) => (
+            <tr>
+              <th scope="row">{w.label}</th>
+              <td class="num">{formatDecimalHours(w.total)}</td>
+              <td class="num">{formatDecimalHours(w.regular)}</td>
+              <td class="num">{formatDecimalHours(w.overtime)}</td>
+              <td class="num"><strong>{formatMoney(w.pay)}</strong></td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      Three 12-hour shifts are 36 hours, so there is no federal overtime. Four are 48 hours, so the last 8 are overtime: 40 hours × $20.00 = $800.00
+      plus 8 hours × $30.00 = $240.00. Taking a 30-minute meal off each shift makes it 46 hours and 6 overtime hours.
+    </p>
+    <p>
+      The <a href="/overtime-calculator/">overtime calculator</a> works out the pay once you know the hours, and the
+      <a href="/">time card calculator</a> adds up the week from your times. For the method step by step, see
+      <a href="/guides/how-to-calculate-overtime-pay/">how to calculate overtime pay</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Alternating three and four shifts</h2>
+    <p>
+      Many 12-hour schedules work three shifts one week and four the next. Each workweek stands on its own, so the 36-hour week has no overtime and the
+      48-hour week has 8 hours of overtime. The two weeks average 42 hours, but they are not averaged. At $20 an hour they pay
+      {formatMoney(short.pay.total)} and {formatMoney(long.pay.total)}, which is {formatMoney(short.pay.total + long.pay.total)} for the two. A workweek is a
+      fixed period of 168 hours that your employer sets, so a shift at the edge of it can fall in two weeks. See
+      <a href="/guides/biweekly-vs-semi-monthly-overtime/">biweekly vs semi-monthly pay</a> for how pay periods and workweeks differ.
+    </p>
+  </section>
+
+  <section>
+    <h2>Where a long day earns overtime on its own</h2>
+    <p>
+      Federal law does not pay overtime for a long day by itself. Some states do. Here are three and four 12-hour shifts through each set of rules at $15
+      an hour, from the same code as the calculators.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Rules</th>
+          {schedules.map((s) => <th scope="col">{s.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.name}</th>
+              {row.cells.map((cell) => (
+                <td>
+                  {cell.hours}
+                  <br />
+                  <strong>{cell.pay}</strong>
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      California, Alaska and Nevada count the hours over 8 on each shift, so even three 12-hour shifts include overtime. Colorado's daily rule starts after
+      12 hours, so a 12-hour shift has none and only the weekly 40 counts. Nevada's daily rule applies here because $15 is below 1.5 times the state minimum
+      wage. California also pays double time after 12 hours in a day, which a shift of exactly 12 hours does not reach. See
+      <a href="/guides/daily-vs-weekly-overtime/">daily vs weekly overtime</a>, and the pages for
+      <a href={statePath('california')}>California</a>, <a href={statePath('alaska')}>Alaska</a>, <a href={statePath('nevada')}>Nevada</a> and
+      <a href={statePath('colorado')}>Colorado</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>What this does not cover</h2>
+    <ul>
+      <li>Employees who are exempt from overtime, which depends on duties and salary, not on the schedule.</li>
+      <li>Special arrangements some employers use, such as an alternative workweek schedule in California or a different pay period for some jobs.</li>
+      <li>Shift differentials and bonuses, which can change the regular rate that overtime is based on.</li>
+      <li>Meal break rules. In California, for example, a day of more than 10 hours brings a second meal period. See <a href="/guides/california-meal-and-rest-breaks/">California meal and rest breaks</a>.</li>
+    </ul>
+  </section>
+</Guide>
