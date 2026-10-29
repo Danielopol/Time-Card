@@ -23,9 +23,16 @@ describe('guides', () => {
   it.each(GUIDES.map((g) => [g.slug, g] as const))('%s has search-friendly metadata', (_slug, guide) => {
     expect(guide.title.length).toBeLessThanOrEqual(62);
     expect(guide.description.length).toBeGreaterThanOrEqual(70);
-    expect(guide.description.length).toBeLessThanOrEqual(175);
+    expect(guide.description.length).toBeLessThanOrEqual(160);
     expect(guide.published).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(guide.updated >= guide.published).toBe(true);
+  });
+
+  it.each(GUIDES.map((g) => [g.slug, g] as const))('%s links to real, different guides', (slug, guide) => {
+    expect(guide.related.length).toBeGreaterThanOrEqual(2);
+    expect(guide.related).not.toContain(slug);
+    expect(new Set(guide.related).size).toBe(guide.related.length);
+    for (const other of guide.related) expect(() => getGuide(other), other).not.toThrow();
   });
 
   it('finds a guide by slug and rejects an unknown one', () => {

@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { SITE, TOOLS } from '../site';
+import { json, siteSchema } from '../schema';
 
 const host = new URL(SITE.url).host;
 
@@ -11,10 +12,13 @@ interface Props {
   noindex?: boolean;
   /** Name of the tool on this page. Adds WebApplication structured data. */
   appName?: string;
+  /** Open Graph type. Guides and state pages are articles. */
+  type?: 'website' | 'article';
 }
 
-const { title, description, noindex = false, appName } = Astro.props;
+const { title, description, noindex = false, appName, type = 'website' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const isHome = Astro.url.pathname === '/';
 
 const appSchema = appName && {
   '@context': 'https://schema.org',
@@ -40,16 +44,19 @@ const appSchema = appName && {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:site_name" content={SITE.name} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={new URL('/og.png', SITE.url)} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITE.name}: payroll time calculators`} />
     <meta name="twitter:card" content="summary_large_image" />
     {noindex && <meta name="robots" content="noindex" />}
-    {appSchema && <script type="application/ld+json" set:html={JSON.stringify(appSchema).replace(/</g, '\\u003c')} />}
+    {appSchema && <script type="application/ld+json" set:html={json(appSchema)} />}
+    {isHome && <script type="application/ld+json" set:html={json(siteSchema)} />}
   </head>
   <body>
     <header class="site-header">
