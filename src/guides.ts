@@ -13,13 +13,40 @@ export interface Guide {
 
 export const GUIDES: readonly Guide[] = [
   {
+    slug: 'calculate-hours-worked-in-military-time',
+    title: 'How to Calculate Hours Worked in Military Time',
+    description:
+      'How to work out hours worked from military time: turn 0730 and 1615 into minutes, subtract, take off lunch, and handle a shift that ends after midnight.',
+    published: '2026-10-29',
+    updated: '2026-10-29',
+    related: ['calculate-hours-worked-with-lunch', 'calculate-night-shift-hours', 'decimal-hours-vs-hours-and-minutes'],
+  },
+  {
+    slug: 'calculate-hours-and-overtime-for-12-hour-shifts',
+    title: '12-Hour Shifts: How to Calculate Hours, Overtime and Pay',
+    description:
+      'How to work out hours, overtime and pay for 12-hour shifts: paid hours after lunch, three and four shift weeks, and how states with daily overtime differ.',
+    published: '2026-10-29',
+    updated: '2026-10-29',
+    related: ['daily-vs-weekly-overtime', 'how-to-calculate-overtime-pay', 'biweekly-vs-semi-monthly-overtime'],
+  },
+  {
+    slug: 'calculate-night-shift-hours',
+    title: 'How to Calculate Hours Worked on a Night Shift',
+    description:
+      'How to calculate hours for a night or overnight shift: count to midnight, add the time after it, take off lunch, and split a shift across two pay weeks.',
+    published: '2026-10-29',
+    updated: '2026-10-29',
+    related: ['calculate-hours-worked-with-lunch', 'calculate-hours-worked-in-military-time', 'daily-vs-weekly-overtime'],
+  },
+  {
     slug: 'calculate-hours-worked-with-lunch',
     title: 'How to Calculate Hours Worked With a Lunch Break',
     description:
       'How to work out hours worked: subtract the unpaid lunch from the time between start and finish, with examples for a night shift, a long lunch and paid breaks.',
     published: '2026-10-09',
     updated: '2026-10-09',
-    related: ['minutes-to-decimal-for-payroll', 'check-your-paycheck-hours', 'fill-out-paper-time-card'],
+    related: ['minutes-to-decimal-for-payroll', 'check-your-paycheck-hours', 'fill-out-paper-time-card', 'calculate-night-shift-hours'],
   },
   {
     slug: 'minutes-to-decimal-for-payroll',
@@ -37,7 +64,7 @@ export const GUIDES: readonly Guide[] = [
       'Decimal hours and hours and minutes are not the same: 8.30 is not 8:30. How they differ, why payroll uses decimals and what the mix-up costs.',
     published: '2026-10-09',
     updated: '2026-10-09',
-    related: ['minutes-to-decimal-for-payroll', 'check-your-paycheck-hours', 'fill-out-paper-time-card'],
+    related: ['minutes-to-decimal-for-payroll', 'check-your-paycheck-hours', 'fill-out-paper-time-card', 'calculate-hours-worked-in-military-time'],
   },
   {
     slug: 'how-to-calculate-overtime-pay',
@@ -46,7 +73,7 @@ export const GUIDES: readonly Guide[] = [
       'How to calculate overtime pay step by step: the overtime rate, overtime hours and total pay, with a worked example, a rate table and the regular rate explained.',
     published: '2026-10-09',
     updated: '2026-10-09',
-    related: ['daily-vs-weekly-overtime', 'biweekly-vs-semi-monthly-overtime', 'how-to-calculate-california-overtime'],
+    related: ['daily-vs-weekly-overtime', 'biweekly-vs-semi-monthly-overtime', 'how-to-calculate-california-overtime', 'calculate-hours-and-overtime-for-12-hour-shifts'],
   },
   {
     slug: 'daily-vs-weekly-overtime',
@@ -55,7 +82,7 @@ export const GUIDES: readonly Guide[] = [
       'Federal overtime is weekly, but some states also pay it for long days. Which places have daily overtime, how the two rules combine, and worked examples.',
     published: '2026-10-06',
     updated: '2026-10-06',
-    related: ['how-to-calculate-overtime-pay', 'how-to-calculate-california-overtime', 'biweekly-vs-semi-monthly-overtime'],
+    related: ['how-to-calculate-overtime-pay', 'how-to-calculate-california-overtime', 'biweekly-vs-semi-monthly-overtime', 'calculate-hours-and-overtime-for-12-hour-shifts'],
   },
   {
     slug: 'how-to-calculate-california-overtime',
@@ -64,7 +91,7 @@ export const GUIDES: readonly Guide[] = [
       'Work out California overtime step by step: split each day at 8 and 12 hours, check the 40-hour week, apply the seventh-day rule, with six worked examples.',
     published: '2026-10-09',
     updated: '2026-10-09',
-    related: ['california-meal-and-rest-breaks', 'daily-vs-weekly-overtime', 'how-to-calculate-overtime-pay'],
+    related: ['california-meal-and-rest-breaks', 'daily-vs-weekly-overtime', 'how-to-calculate-overtime-pay', 'calculate-hours-and-overtime-for-12-hour-shifts'],
   },
   {
     slug: 'california-meal-and-rest-breaks',

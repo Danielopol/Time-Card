@@ -1,0 +1,136 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { formatDecimalHours, formatHM, minutesBetween, parseTime } from '../../engine/time';
+
+// Each example is worked out by the same code as the time card, so the figures cannot drift from the text.
+const t = (s: string) => parseTime(s)!;
+const shift = (title: string, inn: string, out: string, lunch?: [string, string]) => {
+  const span = minutesBetween(t(inn), t(out));
+  const worked = dayWorkedMinutes({ in: t(inn), lunchOut: lunch ? t(lunch[0]) : null, lunchIn: lunch ? t(lunch[1]) : null, out: t(out) }, 0);
+  return { title, inn, out, lunch: lunch ? `${lunch[0]} to ${lunch[1]}` : 'None', span, worked };
+};
+const examples = [
+  shift('A day shift', '0730', '1615', ['1200', '1230']),
+  shift('A one-hour lunch', '0600', '1430', ['1000', '1100']),
+  shift('A night shift', '2200', '0630', ['0200', '0230']),
+  shift('A late evening shift', '1845', '0215'),
+];
+if (examples.map((e) => e.worked).join() !== '495,450,480,450') throw new Error('The military time examples no longer match the text.');
+
+// The worked example in the method section: 0730 to 1615 is 450 and 975 minutes into the day.
+if (t('0730') !== 450 || t('1615') !== 975 || formatHM(975 - 450) !== '8:45') throw new Error('The method example no longer matches the text.');
+
+const faq = [
+  {
+    q: 'How do I calculate hours between 0800 and 1700?',
+    a: 'Subtract the hours: 17 − 8 = 9. From 0800 to 1700 is 9 hours. With a 30-minute unpaid lunch you worked 8 hours 30 minutes, which is 8.50 decimal hours.',
+  },
+  {
+    q: 'How do I subtract military times?',
+    a: 'Do not subtract the four-digit numbers directly, because 1615 − 0730 gives 885 and the minutes only go up to 59. Convert each time to hours and minutes, subtract the hours, subtract the minutes, and borrow 60 minutes from the hours if the minutes go below zero. 1615 − 0730 is 8 hours 45 minutes.',
+  },
+  {
+    q: 'How do I calculate hours when a shift ends after midnight?',
+    a: 'Count the time up to midnight, then add the time after it. From 2200 to 0630 is 2 hours until 0000 plus 6 hours 30 minutes after it, which is 8 hours 30 minutes. Take off any unpaid break after that.',
+  },
+  {
+    q: 'Is 2400 the same as 0000?',
+    a: 'Both mean midnight. 0000 is the start of a day and 2400 is sometimes used for the end of a day. For working out hours, 2400 is 24:00, so 2200 to 2400 is 2 hours.',
+  },
+  {
+    q: 'How do I turn 8 hours 45 minutes into decimal hours?',
+    a: 'Divide the minutes by 60 and add them to the hours: 45 ÷ 60 = 0.75, so 8 hours 45 minutes is 8.75 decimal hours. Payroll uses the decimal figure.',
+  },
+];
+---
+
+<Guide
+  slug="calculate-hours-worked-in-military-time"
+  lede="To work out hours worked from military time, subtract the start from the finish in hours and minutes, then take off any unpaid lunch. The one trap is that four-digit times cannot be subtracted as plain numbers."
+  sources={[
+    { label: '29 CFR 785.19: Meal', url: 'https://www.law.cornell.edu/cfr/text/29/785.19' },
+    { label: 'U.S. Department of Labor, Fact Sheet #22: Hours Worked Under the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/22-flsa-hours-worked' },
+  ]}
+  faq={faq}
+  tools={['/military-time-converter/', '/hours-calculator/', '/']}
+>
+  <section>
+    <h2>The method</h2>
+    <p>Take a day shift that starts at 0730 and ends at 1615.</p>
+    <ol>
+      <li>
+        <strong>Turn each time into minutes since midnight.</strong> The first two digits are the hours and the last two are the minutes, so 0730 is
+        7 × 60 + 30 = 450 and 1615 is 16 × 60 + 15 = 975.
+      </li>
+      <li><strong>Subtract.</strong> 975 − 450 = 525 minutes.</li>
+      <li><strong>Turn the minutes back into hours.</strong> 525 ÷ 60 is 8 hours with 45 minutes left over, so 8 hours 45 minutes.</li>
+      <li><strong>Take off any unpaid break.</strong> A 30-minute lunch leaves 8 hours 15 minutes, or 8.25 decimal hours.</li>
+    </ol>
+    <p>
+      If you would rather not use minutes, subtract the hours and the minutes separately: 16 − 7 = 9 hours, and 15 − 30 is below zero, so borrow an hour.
+      That makes 8 hours and 75 − 30 = 45 minutes. The answer is the same.
+    </p>
+  </section>
+
+  <section>
+    <h2>Why you cannot subtract the four digits</h2>
+    <p>
+      1615 − 0730 on a calculator gives 885. That reads like 8 hours 85 minutes, which is not a time, because an hour has only 60 minutes. The digits
+      are a clock time, not a count, so the minutes must be handled on their own. This is the same reason 8.45 hours is not 8 hours 45 minutes: see
+      <a href="/guides/decimal-hours-vs-hours-and-minutes/">decimal hours vs hours and minutes</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>When the shift ends after midnight</h2>
+    <p>
+      If the finish is a smaller number than the start, the shift crossed midnight. Count the hours up to 2400, then add the time after midnight. A shift
+      from 2200 to 0630 is 2 hours until midnight and 6 hours 30 minutes after it, which is 8 hours 30 minutes. The
+      <a href="/guides/calculate-night-shift-hours/">night shift guide</a> covers pay weeks, daylight saving time and more.
+    </p>
+  </section>
+
+  <section>
+    <h2>Worked examples</h2>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Example</th>
+          <th scope="col">Start and finish</th>
+          <th scope="col">Time at work</th>
+          <th scope="col">Lunch</th>
+          <th scope="col">Hours worked</th>
+          <th scope="col">Decimal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          examples.map((e) => (
+            <tr>
+              <th scope="row">{e.title}</th>
+              <td>{e.inn} to {e.out}</td>
+              <td>{formatHM(e.span)}</td>
+              <td>{e.lunch}</td>
+              <td><strong>{formatHM(e.worked)}</strong></td>
+              <td>{formatDecimalHours(e.worked)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      The figures come from the same code as the <a href="/">time card calculator</a>, which accepts times such as 0730 and 1615 directly. For one shift,
+      type the two times into the <a href="/hours-calculator/">hours calculator</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Which breaks come off?</h2>
+    <p>
+      Under the federal rules, a bona fide meal period is not work time, so an unpaid lunch comes off. Short rest breaks of about 5 to 20 minutes are
+      counted as hours worked and do not. See <a href="/guides/calculate-hours-worked-with-lunch/">how to calculate hours worked with a lunch break</a>
+      for the details. If you need to read or write a time the other way, use the <a href="/military-time-converter/">military time converter</a>.
+    </p>
+  </section>
+</Guide>

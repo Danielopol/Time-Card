@@ -110,3 +110,13 @@ All read in full unless noted.
 - **Spreadsheet formulas** in the payroll conversion guide (`=A2*24`, `=TIMEVALUE(A2)*24`, `=B2+C2/60`, the `[h]:mm` format) are standard Excel and Google Sheets behaviour. They were not run in either program.
 - **California overtime examples** use only Labor Code § 510, as read on 6 October.
 
+
+## Added 29 October 2026: military time, 12-hour shift and night shift guides
+
+No new law was read for these three guides. Everything legal in them was read earlier, as recorded above.
+
+- **29 CFR 778.104 and 778.105** (each workweek stands alone; the workweek is a fixed 168 hours that can start on any day and hour): the basis for the alternating three- and four-shift example and for the point that a shift across the end of a workweek has hours in both weeks. The split-at-midnight way of entering such a shift on the time card is the site's own method, tested in `tests/content.test.ts`.
+- **29 CFR 785.19 and 785.18, DOL Fact Sheets #22 and #23**: unpaid meal periods come off, short rest breaks do not, and federal overtime depends on weekly hours, not on the time of day.
+- **State daily overtime** in the 12-hour shift guide uses the rule sets in `src/engine/rules/index.ts` and the DOL state table already recorded above. California's second meal period for days over 10 hours is the § 512 reading above.
+- **Not source-checked:** the daylight saving paragraph in the night shift guide (clocks change at 2:00 AM on the second Sunday in March and the first Sunday in November; Hawaii and most of Arizona do not change them) is common knowledge and was not checked against a source for this note. The guide says only that the calculators work from clock times and tells readers to count the real time and ask their employer. It makes no claim about how the hour is paid.
+- **Not covered:** shift differentials, alternative workweek schedules, exempt employees, and special pay-period rules for some industries. The guides say so.

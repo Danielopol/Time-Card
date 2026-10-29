@@ -1,0 +1,163 @@
+---
+import Guide from '../../layouts/Guide.astro';
+import { workedExample } from '../../engine/examples';
+import { formatMoney } from '../../engine/money';
+import { RULE_SETS } from '../../engine/rules/index';
+import { dayWorkedMinutes } from '../../engine/timecard';
+import { formatDecimalHours, formatHM, minutesBetween, parseTime } from '../../engine/time';
+
+// Each example is worked out by the same code as the time card, so the figures cannot drift from the text.
+const t = (s: string) => parseTime(s)!;
+const shift = (title: string, inn: string, out: string, lunch?: [string, string]) => {
+  const span = minutesBetween(t(inn), t(out));
+  const worked = dayWorkedMinutes({ in: t(inn), lunchOut: lunch ? t(lunch[0]) : null, lunchIn: lunch ? t(lunch[1]) : null, out: t(out) }, 0);
+  return { title, inn, out, lunch: lunch ? `${lunch[0]} to ${lunch[1]}` : 'None', span, worked };
+};
+const examples = [
+  shift('Ending in the morning', '10:00 PM', '6:30 AM', ['2:00 AM', '2:30 AM']),
+  shift('A 12-hour night shift', '7:00 PM', '7:30 AM', ['1:00 AM', '1:30 AM']),
+  shift('Starting late', '11:00 PM', '7:00 AM'),
+  shift('Finishing at midnight', '6:00 PM', '12:00 AM'),
+];
+if (examples.map((e) => e.worked).join() !== '480,720,480,360') throw new Error('The night shift examples no longer match the text.');
+
+// A shift that runs across the end of the workweek, entered as two rows split at midnight.
+const sundayPart = dayWorkedMinutes({ in: t('10:00 PM'), lunchOut: null, lunchIn: null, out: t('12:00 AM') }, 0);
+const mondayPart = dayWorkedMinutes({ in: t('12:00 AM'), lunchOut: null, lunchIn: null, out: t('6:00 AM') }, 0);
+if (sundayPart !== 120 || mondayPart !== 360) throw new Error('The split shift example no longer matches the text.');
+
+// Five and six night shifts of 8 hours a week at $20 an hour, under federal rules.
+const five = workedExample(RULE_SETS.federal, [8, 8, 8, 8, 8, 0, 0], 2000);
+const six = workedExample(RULE_SETS.federal, [8, 8, 8, 8, 8, 8, 0], 2000);
+if (five.pay.total !== 80000 || six.pay.total !== 104000 || six.totals.overtime !== 480) {
+  throw new Error('The night shift pay examples no longer match the text.');
+}
+
+const faq = [
+  {
+    q: 'How do I calculate hours from 10 PM to 6 AM?',
+    a: 'Count the time up to midnight, then add the time after it. From 10:00 PM to midnight is 2 hours and from midnight to 6:00 AM is 6 hours, so the shift is 8 hours. Take off any unpaid break after that.',
+  },
+  {
+    q: 'Which day does an overnight shift count for?',
+    a: 'On a time card, the whole shift is entered on the day it started. For overtime, hours are counted in the workweek in which they are worked, so a shift that runs across the end of the workweek has hours in both weeks. Ask your employer when your workweek starts.',
+  },
+  {
+    q: 'Does a night shift get overtime?',
+    a: 'Under federal law, overtime depends on the hours worked in the workweek, which is more than 40, and not on the time of day. Some employers pay a shift differential for nights, which is extra pay set by the employer. A state may have its own rules as well.',
+  },
+  {
+    q: 'What happens to a night shift when the clocks change?',
+    a: 'On the night the clocks go back an hour, a shift that spans the change is an hour longer in real time. When they go forward, it is an hour shorter. The calculators work from the clock times you type, so they do not know about this. Count the real time worked, and ask your employer how it is paid.',
+  },
+  {
+    q: 'How do I enter a night shift on a time card?',
+    a: 'Type the start and the finish as they are. If the finish is earlier than the start, the calculator counts it as the next morning. A lunch taken after midnight works the same way.',
+  },
+];
+---
+
+<Guide
+  slug="calculate-night-shift-hours"
+  lede="To work out hours on a night shift, count the time up to midnight, add the time after it and take off any unpaid break. The harder parts are which pay week the hours fall in and what happens when the clocks change."
+  sources={[
+    { label: '29 CFR 778.105: Determining the workweek', url: 'https://www.law.cornell.edu/cfr/text/29/778.105' },
+    { label: '29 CFR 785.19: Meal', url: 'https://www.law.cornell.edu/cfr/text/29/785.19' },
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
+  ]}
+  faq={faq}
+  tools={['/', '/hours-calculator/', '/overtime-calculator/']}
+>
+  <section>
+    <h2>The method</h2>
+    <p>Take a shift from 10:00 PM to 6:30 AM with a 30-minute lunch at 2:00 AM.</p>
+    <ol>
+      <li><strong>Count to midnight.</strong> From 10:00 PM to 12:00 AM is 2 hours.</li>
+      <li><strong>Add the time after midnight.</strong> From 12:00 AM to 6:30 AM is 6 hours 30 minutes, so the shift is 8 hours 30 minutes.</li>
+      <li><strong>Take off the unpaid lunch.</strong> 8 hours 30 minutes less 30 minutes is 8 hours, or 8.00 decimal hours.</li>
+    </ol>
+    <p>
+      The <a href="/hours-calculator/">hours calculator</a> counts a finish that is earlier than the start as the next morning, so you can type the times
+      as they are. If your times are on a 24-hour clock, see <a href="/guides/calculate-hours-worked-in-military-time/">how to calculate hours worked in
+      military time</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Worked examples</h2>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Example</th>
+          <th scope="col">Start and finish</th>
+          <th scope="col">Time at work</th>
+          <th scope="col">Lunch</th>
+          <th scope="col">Hours worked</th>
+          <th scope="col">Decimal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          examples.map((e) => (
+            <tr>
+              <th scope="row">{e.title}</th>
+              <td>{e.inn} to {e.out}</td>
+              <td>{formatHM(e.span)}</td>
+              <td>{e.lunch}</td>
+              <td><strong>{formatHM(e.worked)}</strong></td>
+              <td>{formatDecimalHours(e.worked)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      The figures come from the same code as the <a href="/">time card calculator</a>. For a 12-hour night shift in a four-shift week, see
+      <a href="/guides/calculate-hours-and-overtime-for-12-hour-shifts/">hours and overtime for 12-hour shifts</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Which pay week do the hours fall in?</h2>
+    <p>
+      Overtime is counted by the workweek. A workweek is a fixed and regularly recurring period of 168 hours, which can start on any day and hour, and
+      your employer chooses when yours starts. If a shift runs across the moment one workweek ends and the next begins, part of it belongs to each week.
+    </p>
+    <p>
+      Take a workweek that runs Monday to Sunday and a shift from 10:00 PM on Sunday to 6:00 AM on Monday. The 2 hours before midnight are in the week that
+      is ending and the 6 hours after midnight are in the new one. On the time card calculator, enter Sunday as 10:00 PM to 12:00 AM
+      ({formatHM(sundayPart)} hours) and the next Monday as 12:00 AM to 6:00 AM ({formatHM(mondayPart)} hours), so each week gets its own hours. A card
+      puts a whole shift on the day it started, so splitting it by hand is the way to get the weeks right.
+    </p>
+    <p>
+      Some employers start the workweek at a shift change instead of at midnight, which keeps each shift in one week. Ask yours which it uses. For how the
+      weeks are counted when you are paid every two weeks, see
+      <a href="/guides/biweekly-vs-semi-monthly-overtime/">biweekly vs semi-monthly pay</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Night shift pay</h2>
+    <p>
+      Federal overtime is 1.5 times the regular rate for hours over 40 in a workweek, whatever time of day they are worked. At $20 an hour, five night
+      shifts of 8 hours are 40 hours and pay {formatMoney(five.pay.total)}. A sixth shift makes 48 hours, so the last 8 are overtime and the week pays
+      {formatMoney(six.pay.total)}.
+    </p>
+    <p>
+      Many employers pay extra for nights, called a shift differential. The calculators here use one hourly rate, so they do not add it. Extra pay of
+      this kind can change the regular rate that overtime is based on, which is covered in
+      <a href="/guides/how-to-calculate-overtime-pay/">how to calculate overtime pay</a>. States with daily overtime count each long shift as well, as
+      explained in <a href="/guides/daily-vs-weekly-overtime/">daily vs weekly overtime</a>.
+    </p>
+  </section>
+
+  <section>
+    <h2>When the clocks change</h2>
+    <p>
+      In most of the United States, clocks go forward an hour at 2:00 AM on the second Sunday in March and back an hour at 2:00 AM on the first Sunday in
+      November. A night shift that spans the change is an hour shorter in March and an hour longer in November than the clock times suggest. A calculator
+      that works from clock times shows the usual figure, so add or take off the hour by hand, and ask your employer or payroll team how they treat it.
+      Arizona, apart from the Navajo Nation, and Hawaii do not change their clocks.
+    </p>
+  </section>
+</Guide>
