@@ -166,7 +166,7 @@ export const STATES: readonly StatePage[] = [
     name: 'Nevada',
     title: 'Nevada Overtime Rules: Daily Overtime and the $18 Threshold',
     description:
-      'Nevada overtime rules explained: 1.5 times pay after 40 hours a week, plus after 8 hours a day for employees earning under 1.5 times minimum wage, with examples.',
+      'Nevada overtime rules: 1.5 times pay after 40 hours a week, plus after 8 hours a day for employees earning under 1.5 times minimum wage, with examples.',
     lede: 'In Nevada, how much you earn decides whether you get daily overtime. Employees below a pay threshold are paid overtime after 8 hours in a day as well as after 40 in a week.',
     rules: [
       'Employees paid less than 1.5 times the state minimum wage are paid 1.5 times their regular rate for hours over 40 in a scheduled week, and for hours over 8 in a workday.',

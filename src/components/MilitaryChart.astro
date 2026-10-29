@@ -11,6 +11,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i * 60);
       <th scope="col">Standard time</th>
       <th scope="col">Military time</th>
       <th scope="col">24-hour clock</th>
+      <th scope="col">Military to standard</th>
     </tr>
   </thead>
   <tbody>
@@ -22,6 +23,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i * 60);
           </th>
           <td>{format12(m)} = {formatMilitary(m)}</td>
           <td>{format24(m)}</td>
+          <td>{formatMilitary(m)} military time = {format12(m)}</td>
         </tr>
       ))
     }

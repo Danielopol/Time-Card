@@ -11,6 +11,26 @@ const faq = [
     a: '1700 is 5:00 PM. Subtract 12 from the hour: 17 − 12 = 5.',
   },
   {
+    q: 'What time is 1500 in military time?',
+    a: '1500 is 3:00 PM, because 15 − 12 = 3. In the same way, 1400 is 2:00 PM, 1600 is 4:00 PM and 1900 is 7:00 PM.',
+  },
+  {
+    q: 'What is 0300 in military time?',
+    a: '0300 is 3:00 AM. Times from 0100 to 1159 keep the same hour and are AM, so 0300 is 3 in the morning.',
+  },
+  {
+    q: 'What is 2300 in military time?',
+    a: '2300 is 11:00 PM, because 23 − 12 = 11. The last minute of the day is 2359, which is 11:59 PM.',
+  },
+  {
+    q: 'What is 12 AM in military time?',
+    a: '12 AM, or midnight, is 0000. 12:30 AM is 0030, and the hour after midnight runs from 0000 to 0059.',
+  },
+  {
+    q: 'How do I convert 14:32 to standard time?',
+    a: 'Subtract 12 from the hour and keep the minutes. 14:32 is 2:32 PM, and 1432 is the same time written without the colon.',
+  },
+  {
     q: 'What time is 1300?',
     a: '1300 is 1:00 PM. It is the first hour after noon, and 13 − 12 = 1.',
   },
@@ -38,12 +58,14 @@ const faq = [
 ---
 
 <Base
-  title="Military Time Converter and 24-Hour Chart"
-  description="Convert between standard 12-hour time and 24-hour military time in either direction. Includes a printable military time chart."
+  title="Military Time Converter and 24-Hour Time Chart"
+  description="Convert military time to standard time and back: 1700 is 5:00 PM. Free converter with a printable chart for every hour, from 0000 to 2300."
   appName="Military Time Converter"
 >
   <h1>Military Time Converter</h1>
-  <p class="lede">Convert between standard 12-hour time and 24-hour military time. 5:30 PM is 1730.</p>
+  <p class="lede">
+    Convert military time (also called army time or the 24-hour clock) to standard 12-hour time, and back. 1730 is 5:30 PM.
+  </p>
   <MilitaryTime client:load />
 
   <section>
@@ -69,6 +91,11 @@ const faq = [
       <li>From 1300 to 2359, subtract 12 from the hour and the time is PM. 1730 is 17 − 12 = 5, so 5:30 PM.</li>
       <li>From 0000 to 0059, the hour is 12 and the time is AM. 0015 is 12:15 AM.</li>
     </ul>
+    <h2 class="spaced">Minutes in military time</h2>
+    <p>
+      The minutes never change. Only the hour is converted, so 14:32 is 2:32 PM, 0905 is 9:05 AM and 2359 is 11:59 PM. Military time is usually read as
+      two pairs of digits: 1432 is "fourteen thirty-two", and 0800 is "oh eight hundred".
+    </p>
     <p>The <a href="/">time card calculator</a> accepts 24-hour times, so you can enter punches such as 0730 and 1615 directly.</p>
   </section>
   <Faq items={faq} />
