@@ -18,6 +18,8 @@ export interface StatePage {
   lede: string;
   /** The rules in plain English, one paragraph each. */
   rules: string[];
+  /** Optional ordered method for working out a week by hand. */
+  steps?: { lead: string; text: string }[];
   examples: StateExample[];
   extras: { heading: string; paragraphs: string[] }[];
   notCovered: string[];
@@ -30,21 +32,51 @@ export const STATES: readonly StatePage[] = [
     slug: 'california',
     ruleSet: 'california',
     name: 'California',
-    title: 'California Overtime Rules: Daily, Weekly and Double Time',
+    title: 'California Overtime Rules and How to Calculate Them',
     description:
-      'California overtime rules explained: 1.5 times pay after 8 hours a day or 40 a week, double time after 12 hours, and the seventh-day rule, with worked examples.',
-    lede: 'California counts overtime by the day as well as by the week, and it has a double-time tier. The same hours can pay more here than under federal rules.',
+      'California overtime rules and how to work them out: 1.5 times pay after 8 hours a day or 40 a week, double time after 12, the seventh-day rule, six examples.',
+    lede: 'California counts overtime by the day as well as by the week, and it has a double-time tier, so the same hours can pay more here than under federal rules. Here are the rules, how to work through them in order, and six worked examples.',
     rules: [
       'Hours over 8 in a workday and hours over 40 in a workweek are paid at 1.5 times the regular rate. The first 8 hours on the seventh day of work in a workweek are also paid at 1.5 times.',
       'Hours over 12 in a workday, and hours over 8 on the seventh day of work in a workweek, are paid at double the regular rate.',
       'An employer does not have to combine more than one overtime rate for the same hour, so an hour paid as daily overtime is not paid again as weekly overtime.',
       'This calculator applies the seventh-day rule when every day of the workweek has hours entered.',
     ],
+    steps: [
+      {
+        lead: 'Split each day.',
+        text: 'The first 8 hours are regular. Hours over 8, up to 12, are overtime at 1.5 times the regular rate. Hours over 12 are double time.',
+      },
+      {
+        lead: 'Check the week.',
+        text: 'Add up the regular hours from step 1. Regular hours over 40 in the workweek are also overtime at 1.5 times. Hours already paid as daily overtime are not paid again.',
+      },
+      {
+        lead: 'Check the seventh day.',
+        text: 'On the seventh day of work in a workweek, the first 8 hours are overtime at 1.5 times, and hours over 8 are double time.',
+      },
+      {
+        lead: 'Price each tier.',
+        text: 'Regular hours at the rate, overtime hours at 1.5 times, double-time hours at 2 times. Add the three for gross pay.',
+      },
+    ],
     examples: [
+      {
+        title: 'One 9-hour day',
+        intro: 'One hour over 8, so the day has 8 regular hours and 1 hour of daily overtime, even though the week is far below 40.',
+        hours: [9, 0, 0, 0, 0, 0, 0],
+        rateCents: 2000,
+      },
       {
         title: 'Five 10-hour days',
         intro: 'Each day has 2 hours of daily overtime. The weekly rule adds nothing, because the regular hours come to exactly 40.',
         hours: [10, 10, 10, 10, 10, 0, 0],
+        rateCents: 2000,
+      },
+      {
+        title: 'Four 12-hour days',
+        intro: 'Four hours over 8 each day and none over 12, so there is no double time. Under federal rules the same 48 hours would include only 8 overtime hours. Here there are 16.',
+        hours: [12, 12, 12, 12, 0, 0, 0],
         rateCents: 2000,
       },
       {
@@ -54,10 +86,16 @@ export const STATES: readonly StatePage[] = [
         rateCents: 2000,
       },
       {
-        title: 'Working all seven days',
+        title: 'Six 8-hour days',
+        intro: 'No day passes 8 hours, so there is no daily overtime. The sixth day takes the week past 40, and those 8 hours are weekly overtime.',
+        hours: [8, 8, 8, 8, 8, 8, 0],
+        rateCents: 2000,
+      },
+      {
+        title: 'Seven days, with a 10-hour seventh day',
         intro:
-          'The first five days fill the 40 regular hours. The sixth day is weekly overtime, and the seventh day is overtime for its first 8 hours.',
-        hours: [8, 8, 8, 8, 8, 8, 8],
+          'The first five days fill the 40 regular hours and day six is weekly overtime. On the seventh day the first 8 hours are overtime and the last 2 are double time.',
+        hours: [8, 8, 8, 8, 8, 8, 10],
         rateCents: 2000,
       },
     ],
@@ -77,6 +115,10 @@ export const STATES: readonly StatePage[] = [
     ],
     faq: [
       {
+        q: 'How do I calculate overtime in California?',
+        a: 'Split each day: hours up to 8 are regular, hours over 8 up to 12 are overtime at 1.5 times, and hours over 12 are double time. Then check the week: regular hours over 40 are also overtime. On a seventh day of work in a workweek, the first 8 hours are overtime and the rest are double time.',
+      },
+      {
         q: 'Does California pay overtime after 8 hours a day?',
         a: 'Yes. Work over 8 hours in a workday is paid at 1.5 times the regular rate, even if the week stays under 40 hours. Work over 12 hours in a day is paid at double the regular rate.',
       },
@@ -89,15 +131,19 @@ export const STATES: readonly StatePage[] = [
         a: 'On the seventh day of work in a workweek, the first 8 hours are paid at 1.5 times the regular rate and any hours over 8 are paid at double the regular rate.',
       },
       {
-        q: 'When does double time start in California?',
-        a: 'After 12 hours in a workday. On a seventh day of work in a workweek, double time starts after 8 hours.',
+        q: 'How much is overtime for 10 hours a day in California?',
+        a: 'Each 10-hour day has 8 regular hours and 2 overtime hours. At $20 an hour that is $160 + $60 = $220 a day, or $1,100 for five days.',
+      },
+      {
+        q: 'When does double time start in California? Is a 12-hour shift double time?',
+        a: 'Double time starts after 12 hours in a workday, so a 12-hour shift has 8 regular hours, 4 overtime hours and no double time. A 13-hour day adds 1 double-time hour. On a seventh day of work in a workweek, double time starts after 8 hours.',
       },
       {
         q: 'Does the calculator handle alternative workweek schedules?',
         a: 'No. Some employees work an alternative workweek schedule, such as four 10-hour days, adopted under special rules. They follow different overtime rules, so use your employer\'s payroll figures if that applies to you.',
       },
     ],
-    updated: '2026-10-06',
+    updated: '2026-11-05',
   },
   {
     slug: 'alaska',

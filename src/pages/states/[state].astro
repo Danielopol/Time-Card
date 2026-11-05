@@ -66,6 +66,21 @@ const others = STATES.filter((s) => s.slug !== page.slug);
       </ul>
     </section>
 
+    {
+      page.steps && (
+        <section>
+          <h2>How to calculate {page.name} overtime, step by step</h2>
+          <ol>
+            {page.steps.map((step) => (
+              <li>
+                <strong>{step.lead}</strong> {step.text}
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
     <section>
       <h2>Worked examples</h2>
       <p>These weeks are worked out by the same code as the calculators. Hours are decimal hours.</p>
@@ -135,13 +150,6 @@ const others = STATES.filter((s) => s.slug !== page.slug);
       <ul>
         {page.notCovered.map((item) => <li>{item}</li>)}
       </ul>
-      {
-        page.slug === 'california' && (
-          <p>
-            To work through your own week step by step, see <a href={guidePath('how-to-calculate-california-overtime')}>how to calculate California overtime</a>.
-          </p>
-        )
-      }
       <p>
         The results are estimates and are not legal or payroll advice. For how overtime is counted when you are paid every two weeks, see
         <a href={guidePath('biweekly-vs-semi-monthly-overtime')}>biweekly vs semi-monthly pay</a>.
