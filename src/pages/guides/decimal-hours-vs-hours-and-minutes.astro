@@ -1,12 +1,7 @@
 ---
 import Guide from '../../layouts/Guide.astro';
 import { formatMoney } from '../../engine/money';
-import { formatDecimalHours, formatHM } from '../../engine/time';
-
-const rows = [6, 10, 12, 15, 18, 20, 24, 30, 36, 40, 42, 45, 48, 54].map((m) => ({
-  hm: `0:${String(m).padStart(2, '0')}`,
-  dec: formatDecimalHours(m),
-}));
+import { formatDecimalHours, formatHM, toDecimalHours } from '../../engine/time';
 
 // What the mix-up costs at $20 an hour. All figures in whole cents.
 const rateCents = 2000;
@@ -19,6 +14,22 @@ if (correctDay !== 17000 || wrongDay !== 16600 || dayLoss !== 400 || stubShort !
   throw new Error('The decimal mix-up example no longer matches the text.');
 }
 
+// Five days of 8 hours 20 minutes at $20 an hour, paid three ways. Whole-cent arithmetic, so there is no float drift.
+const dayMinutes = 500;
+const days = 5;
+const totalMinutes = dayMinutes * days;
+const hundredths = (minutes: number) => Math.round(toDecimalHours(minutes) * 100);
+const payFromHundredths = (h: number) => Math.round((h * rateCents) / 100);
+
+const exactCents = Math.round((totalMinutes * rateCents) / 60);
+const convertTotalCents = payFromHundredths(hundredths(totalMinutes));
+const convertEachCents = payFromHundredths(hundredths(dayMinutes) * days);
+const threePlacesCents = Math.round((Math.round(toDecimalHours(dayMinutes, 3) * 1000) * days * rateCents) / 1000);
+
+if (exactCents !== 83333 || convertTotalCents !== 83340 || convertEachCents !== 83300 || threePlacesCents !== 83330) {
+  throw new Error('The payroll conversion example no longer matches the text.');
+}
+
 const faq = [
   {
     q: 'Is 8.30 hours the same as 8:30?',
@@ -29,6 +40,22 @@ const faq = [
     a: 'Keep the 7 as hours and multiply 0.75 by 60 to get 45 minutes. 7.75 hours is 7 hours 45 minutes.',
   },
   {
+    q: 'Should I convert each entry to decimal or the total?',
+    a: 'Add the hours and minutes first, then convert the total once. Converting each day and adding the rounded decimals lets small rounding errors build up. In the example on this page, converting each day is 33 cents short on one week\'s pay, and converting the total is 7 cents over.',
+  },
+  {
+    q: 'How many decimal places should I use for payroll?',
+    a: 'Most payroll systems use two. Three places are closer to the exact time, but use whatever your payroll software or employer policy specifies, and use it every time.',
+  },
+  {
+    q: 'What is the Excel formula to convert time to decimal hours?',
+    a: 'If the cell holds a time such as 8:40, multiply it by 24: =A2*24 gives 8.6667, and =ROUND(A2*24,2) gives 8.67. For text that looks like a time, use =TIMEVALUE(A2)*24. If hours and minutes are in separate columns, use =B2+C2/60.',
+  },
+  {
+    q: 'Why does 8:20 become 8.33?',
+    a: '20 minutes is one third of an hour, 0.3333, which is written 0.33 at two decimal places. That is also why three 20-minute entries add up to 0.99, not 1.00.',
+  },
+  {
     q: 'What is 0.1 of an hour in minutes?',
     a: 'Six minutes. A tenth of an hour is 60 ÷ 10 = 6 minutes, so 0.2 is 12 minutes and 0.5 is 30 minutes.',
   },
@@ -36,21 +63,18 @@ const faq = [
     q: 'Why does my pay stub show decimal hours?',
     a: 'Payroll multiplies hours by a pay rate, and that needs a decimal. A stub showing 38.75 hours means 38 hours 45 minutes.',
   },
-  {
-    q: 'Why do some employers use tenths of an hour?',
-    a: 'Tenths of an hour are 6-minute steps, which keeps the arithmetic to one decimal place. The federal rounding rule mentions rounding to the nearest tenth of an hour as one accepted method.',
-  },
 ];
 ---
 
 <Guide
   slug="decimal-hours-vs-hours-and-minutes"
-  lede="A time of 8:30 is not 8.30 hours. Hours and minutes count in sixties and decimals count in tens, and confusing them is one of the commonest mistakes on a timesheet."
+  lede="A time of 8:30 is not 8.30 hours. Hours and minutes count in sixties and decimals count in tens, and confusing them is one of the commonest mistakes on a timesheet. Here is how the two differ, what the mix-up costs, and how to convert a whole timesheet without rounding errors."
   sources={[
+    { label: 'U.S. Department of Labor, Fact Sheet #23: Overtime Pay Requirements of the FLSA', url: 'https://www.dol.gov/agencies/whd/fact-sheets/23-flsa-overtime-pay' },
     { label: '29 CFR 785.48: Time clocks and rounding', url: 'https://www.law.cornell.edu/cfr/text/29/785.48' },
   ]}
   faq={faq}
-  tools={['/minutes-to-decimal/', '/decimal-to-minutes/', '/hours-calculator/']}
+  tools={['/minutes-to-decimal/', '/decimal-to-minutes/', '/', '/hours-calculator/']}
 >
   <section>
     <h2>Two ways to write the same time</h2>
@@ -62,6 +86,11 @@ const faq = [
       To convert, divide the minutes by 60 and add them to the hours. 8:30 is 8 + 30 ÷ 60 = 8.50 hours. To go back, multiply the decimal part by 60.
       8.50 hours is 8 hours and 0.50 × 60 = 30 minutes.
     </p>
+    <p>
+      For one value, use the <a href="/minutes-to-decimal/">minutes to decimal converter</a>, which has a chart of every minute from 1 to 60, or the
+      <a href="/decimal-to-minutes/">decimal hours to minutes converter</a>. Values such as 10 and 20 minutes do not divide evenly, so their decimals
+      are rounded: 10 minutes is 0.1667 and is written 0.17.
+    </p>
   </section>
 
   <section>
@@ -69,25 +98,6 @@ const faq = [
     <p>
       Pay is hours multiplied by a rate, and you cannot multiply "8:30" by a dollar amount. As a decimal it works: 8.50 hours at $20 an hour is
       8.50 × $20 = $170.00. Decimals also add up cleanly, with no carrying of 60 minutes into an hour.
-    </p>
-  </section>
-
-  <section>
-    <h2>Common values</h2>
-    <table class="chart">
-      <thead>
-        <tr>
-          <th scope="col">Hours and minutes</th>
-          <th scope="col">Decimal hours</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => <tr><th scope="row">{row.hm}</th><td>{row.dec}</td></tr>)}
-      </tbody>
-    </table>
-    <p>
-      Values such as 10 and 20 minutes do not divide evenly, so their decimals are rounded: 10 minutes is 0.1667 and is written 0.17. The
-      <a href="/minutes-to-decimal/">minutes to decimal chart</a> lists every minute.
     </p>
   </section>
 
@@ -122,6 +132,77 @@ const faq = [
   </section>
 
   <section>
+    <h2>Convert the total, not each entry</h2>
+    <p>
+      When a timesheet has many entries, the order of converting and adding matters. Take five days of 8 hours 20 minutes, paid at $20 an hour. 20
+      minutes is a third of an hour, which does not fit exactly in two decimal places.
+    </p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">Method</th>
+          <th scope="col">Hours</th>
+          <th scope="col">Pay at $20</th>
+          <th scope="col">Difference from exact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Exact: {formatHM(totalMinutes)} in whole minutes</th>
+          <td>41.6667</td>
+          <td>{formatMoney(exactCents)}</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <th scope="row">Add the hours and minutes, convert once</th>
+          <td>{formatDecimalHours(totalMinutes)}</td>
+          <td>{formatMoney(convertTotalCents)}</td>
+          <td>+{formatMoney(convertTotalCents - exactCents)}</td>
+        </tr>
+        <tr>
+          <th scope="row">Convert each day to two places, then add</th>
+          <td>{(hundredths(dayMinutes) * days / 100).toFixed(2)}</td>
+          <td>{formatMoney(convertEachCents)}</td>
+          <td>−{formatMoney(exactCents - convertEachCents)}</td>
+        </tr>
+        <tr>
+          <th scope="row">Convert each day to three places, then add</th>
+          <td>{(Math.round(toDecimalHours(dayMinutes, 3) * 1000) * days / 1000).toFixed(3)}</td>
+          <td>{formatMoney(threePlacesCents)}</td>
+          <td>−{formatMoney(exactCents - threePlacesCents)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Each day rounds down from 8.3333 to 8.33, and the five small losses add up. Adding the hours and minutes first and converting once rounds only
+      one time. Whichever method your payroll uses, use the same one every pay period, so differences do not pile up.
+    </p>
+  </section>
+
+  <section>
+    <h2>Spreadsheet formulas</h2>
+    <p>These work in Excel and Google Sheets. A spreadsheet stores a time as a fraction of a day, so multiplying by 24 gives hours.</p>
+    <table class="chart">
+      <thead>
+        <tr>
+          <th scope="col">You have</th>
+          <th scope="col">Formula</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">A time in A2, such as 8:40</th><td><code>=A2*24</code> or <code>=ROUND(A2*24,2)</code></td></tr>
+        <tr><th scope="row">Text in A2 that looks like a time</th><td><code>=TIMEVALUE(A2)*24</code></td></tr>
+        <tr><th scope="row">Hours in B2 and minutes in C2</th><td><code>=B2+C2/60</code></td></tr>
+        <tr><th scope="row">Decimal hours in A2, back to a time</th><td><code>=A2/24</code>, with the cell formatted as <code>[h]:mm</code></td></tr>
+      </tbody>
+    </table>
+    <p>
+      Format the result cells as numbers, not times, or the spreadsheet will show a clock time instead of 8.67. Round only at the end, with
+      <code>ROUND</code>, so the total is not built from rounded pieces.
+    </p>
+  </section>
+
+  <section>
     <h2>Tenths of an hour</h2>
     <p>
       Some employers count in tenths of an hour, which are steps of 6 minutes: 0.1 is 6 minutes, 0.5 is 30 minutes and 1.0 is 60 minutes. The
@@ -131,12 +212,12 @@ const faq = [
   </section>
 
   <section>
-    <h2>Converting either way</h2>
-    <p>
-      For one value, use the <a href="/minutes-to-decimal/">minutes to decimal converter</a> or the
-      <a href="/decimal-to-minutes/">decimal hours to minutes converter</a>. For a whole column of times at once, see
-      <a href="/guides/minutes-to-decimal-for-payroll/">how to convert minutes to decimal for payroll</a>, which includes spreadsheet formulas.
-      {formatHM(510)} is {formatDecimalHours(510)} hours.
-    </p>
+    <h2>Mistakes to watch for</h2>
+    <ul>
+      <li>Writing minutes as the decimal part, so 8:30 becomes 8.30. It is 8.50.</li>
+      <li>Rounding every entry before adding, as shown above.</li>
+      <li>Mixing two and three decimal places in the same total.</li>
+      <li>Rounding clock times as well as converting them. Rounding is a separate policy, set by your employer.</li>
+    </ul>
   </section>
 </Guide>

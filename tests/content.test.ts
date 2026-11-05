@@ -74,9 +74,12 @@ describe('state pages', () => {
   // The figures below were worked out by hand from each state's rule, then compared with the engine.
   const expected: Record<string, { regular: number; overtime: number; doubleTime: number; pay: number }[]> = {
     california: [
+      { regular: h(8), overtime: h(1), doubleTime: 0, pay: 19000 },
       { regular: h(40), overtime: h(10), doubleTime: 0, pay: 110000 },
+      { regular: h(32), overtime: h(16), doubleTime: 0, pay: 112000 },
       { regular: h(8), overtime: h(4), doubleTime: h(1), pay: 32000 },
-      { regular: h(40), overtime: h(16), doubleTime: 0, pay: 128000 },
+      { regular: h(40), overtime: h(8), doubleTime: 0, pay: 104000 },
+      { regular: h(40), overtime: h(16), doubleTime: h(2), pay: 136000 },
     ],
     alaska: [
       { regular: h(40), overtime: h(5), doubleTime: 0, pay: 95000 },

@@ -6,10 +6,6 @@ import ToolGrid from '../components/ToolGrid.astro';
 
 const faq = [
   {
-    q: 'How do I calculate overtime pay?',
-    a: 'Multiply your hourly rate by the overtime multiplier, then by your overtime hours. At $20 an hour and time and a half, the overtime rate is $30 an hour, so 6 overtime hours pay $180.',
-  },
-  {
     q: 'What is time and a half for $20 an hour?',
     a: 'Time and a half is 1.5 times the regular rate. For $20 an hour that is $30 an hour. For $15 an hour it is $22.50, and for $25 an hour it is $37.50.',
   },
@@ -50,19 +46,17 @@ const faq = [
   <OvertimeCalc client:load />
 
   <section class="prose">
-    <h2>How to calculate overtime pay</h2>
-    <ol>
-      <li>Multiply your hourly rate by the overtime multiplier. At time and a half, $18.50 × 1.5 = $27.75 an hour.</li>
-      <li>Multiply that overtime rate by your overtime hours. $27.75 × 5 hours = $138.75.</li>
-      <li>Work out regular pay. $18.50 × 40 hours = $740.00.</li>
-      <li>Add the two. $740.00 + $138.75 = $878.75.</li>
-    </ol>
+    <h2>The overtime pay formula</h2>
+    <p>
+      Total pay = hourly rate × regular hours + hourly rate × multiplier × overtime hours. At $18.50 an hour with 40 regular hours and 5 hours at time
+      and a half, that is $740.00 + $138.75 = $878.75.
+    </p>
     <p>
       Under federal law, overtime is 1.5 times the regular rate for hours over 40 in a workweek. Some states also count long days as overtime, and some
       employers pay a higher multiplier. This calculator estimates gross pay before taxes and deductions and is not legal or payroll advice.
     </p>
     <p>
-      For a step-by-step explanation with worked examples and a table of overtime rates, see
+      For the method step by step, a worked week, a table of overtime rates and how bonuses change the regular rate, see the guide to
       <a href="/guides/how-to-calculate-overtime-pay/">how to calculate overtime pay</a>.
     </p>
     <p>
